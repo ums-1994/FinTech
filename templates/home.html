@@ -11,12 +11,98 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <!-- Google Icons -->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-        <title>Expense Tracker - Home</title>
+        <title>BudgetBuddy - Home</title>
+
+        <style>
+            .chatbot-container {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                width: 300px;
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                display: none;
+                flex-direction: column;
+                z-index: 1000;
+            }
+            
+            .chatbot-header {
+                background: #ffc800;
+                color: rgb(255, 255, 255);
+                padding: 10px;
+                border-top-left-radius: 10px;
+                border-top-right-radius: 10px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .chatbot-body {
+                height: 300px;
+                overflow-y: auto;
+                padding: 10px;
+                background: #f9faf8;
+            }
+            
+            .chatbot-input {
+                display: flex;
+                border-top: 1px solid #ddd;
+            }
+            
+            #chatbot-input {
+                flex: 1;
+                border: none;
+                padding: 10px;
+                border-bottom-left-radius: 10px;
+            }
+            
+            #chatbot-send-btn {
+                border: none;
+                background: #de36ba;
+                color: white;
+                padding: 0 15px;
+                cursor: pointer;
+                border-bottom-right-radius: 10px;
+            }
+            
+            #chatbot-toggle-btn {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .chatbot-message {
+                margin: 5px 0;
+                padding: 8px 12px;
+                border-radius: 10px;
+                max-width: 80%;
+            }
+            
+            .chatbot-message.user {
+                background: #007bff;
+                color: white;
+                margin-left: auto;
+            }
+            
+            .chatbot-message.bot {
+                background: #e9ecef;
+                color: black;
+                margin-right: auto;
+            }
+        </style>
     </head>
     <body class="page-bg">
      <div class="bg-nav d-flex flex-column flex-md-row align-items-center pb-0 mb-0 border-bottom">
-      <h5 class="m-3 mr-md-auto font-weight-normal"><a href="/" style="text-decoration : none">Expense Tracker - {{ user_name }}</a></h5>
+      <h5 class="m-3 mr-md-auto font-weight-normal"><a href="/" style="text-decoration : none">BudgetBuddy - {{ user_name }}</a></h5>
 
       <nav class="m-2 my-md-0 mr-md-3">
         <a class="py-2 m-2 text-dark" href="/home">Home</a>
@@ -45,7 +131,7 @@
                  <div class="card deep-purple my-1">
                      <div class="card-body ">
                          <h5 class="text-center">Total Earnings</h5>
-                         <h2 class="text-center">₹ {{ earning }}</h2>
+                         <h2 class="text-center">R {{ earning }}</h2>
                      </div>
                  </div>
              </div>
@@ -53,7 +139,7 @@
                  <div class="card alive my-1">
                      <div class="card-body ">
                          <h5 class="text-center">Total Spends</h5>
-                         <h2 class="text-center">₹ {{ spend }}</h2>
+                         <h2 class="text-center">R {{ spend }}</h2>
                      </div>
                  </div>
              </div>
@@ -61,7 +147,7 @@
                  <div class="card citrus my-1">
                      <div class="card-body ">
                          <h5 class="text-center">Total Investments</h5>
-                         <h2 class="text-center">₹ {{ invest }}</h2>
+                         <h2 class="text-center">R {{ invest }}</h2>
                      </div>
                  </div>
              </div>
@@ -69,7 +155,7 @@
                  <div class="card green my-1">
                      <div class="card-body ">
                          <h5 class="text-center">Total Savings</h5>
-                         <h2 class="text-center">₹ {{ saving }}</h2>
+                         <h2 class="text-center">R {{ saving }}</h2>
                      </div>
                  </div>
              </div>
@@ -109,7 +195,7 @@
                                         <input type="number" class="form-control my-1" id="amount" name="amount" placeholder="Enter Amount" required>
                                         <select class="form-control my-1" name="notes" required>
                                             <option selected hidden value="None">Select...</option>
-                                            <option value="Earning">Earning</option>
+                                            
                                             <option value="Spend">Spend</option>
                                             <option value="Investment">Investment</option>
                                             <option value="Saving">Saving</option>
@@ -118,30 +204,27 @@
                                             <option value="Rental Income">Rental Income</option>
                                             <option value="Interest Income">Interest Income</option>
                                             <option value="Dividend Income">Dividend Income</option>
-                                            <option value="Commission">Commission</option>
+                                            
                                             <option value="Gifts">Gifts</option>
-                                            <option value="House Rent">House Rent</option>
-                                            <option value="Shopping">Shopping</option>
+                                            
+                                            
                                             <option value="Groceries">Groceries</option>
-                                            <option value="Goods">Goods</option>
-                                            <option value="Travel">Travel</option>
+                                            
                                             <option value="Fuel">Fuel</option>
-                                            <option value="EMI">EMI</option>
-                                            <option value="Bills">Bills</option>
-                                            <option value="Gifts">Gifts</option>
+                                            
+                                            
                                             <option value="Medical">Medical</option>
                                             <option value="Fees">Fees</option>
                                             <option value="Vacation">Vocation</option>
-                                            <option value="Mutual Funds">Mutual Funds</option>
-                                            <option value="Bonds">Bonds</option>
-                                            <option value="ETF">ETF</option>
+                                            
+                                           
                                             <option value="Fixed Deposit">Fixed Deposit</option>
                                             <option value="Retirement Plan">Retirement Plan</option>
                                             <option value="Real Estate">Real Estate</option>
-                                            <option value="Home Purchase">Home Purchase</option>
+                                            
                                             <option value="Child Saving">Child Saving</option>
-                                            <option value="Vacation">Vacation</option>
-                                            <option value="Health Account">Health Account</option>
+                                            
+                                            
                                             <option value="Bank">Bank</option>
                                             <option value="Others">Others</option>
                                         </select>
@@ -162,16 +245,25 @@
                               <th scope="col">Expense</th>
                               <th scope="col">Amount</th>
                               <th scope="col">Note</th>
+                              <th scope="col">Actions</th>
                             </tr>
                           </thead>
                           <tbody>
-                          {% for row in table_data %}
+                          {% for expense in table_data %}
                             <tr>
                               <th scope="row">{{ loop.index }}</th>
-                              <td>{{ row[2] }}</td>
-                              <td>{{ row[3] }}</td>
-                              <td>{{ row[4] }}</td>
-                              <td>{{ row[5] }}</td>
+                              <td>{{ expense[2] }}</td>
+                              <td>{{ expense[3] }}</td>
+                              <td>{{ expense[4] }}</td>
+                              <td>{{ expense[5] }}</td>
+                              <td>
+                                  <form action="{{ url_for('delete_expense', expense_id=expense[0]) }}" method="POST" 
+                                        onsubmit="return confirm('Are you sure you want to delete this expense?');">
+                                      <button type="submit" class="btn btn-danger btn-sm">
+                                          <i class="fas fa-trash"></i> Delete
+                                      </button>
+                                  </form>
+                              </td>
                             </tr>
                           {% endfor %}
                           </tbody>
@@ -200,7 +292,7 @@
                   <div class="row m-1">
                       <div class="col-sm-12">
                           <div class="card card-body m-1 p-1 panel list">
-                              <h4 align="center">Monthly Record (₹)</h4>
+                              <h4 align="center">Monthly Record (R)</h4>
                               <li>
                                   <h5 class="text-warning">Month</h5>
                                   <span>Income</span>
@@ -317,7 +409,7 @@
           <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
             <svg class="bi" width="30" height="24"><use xlink:href="#bootstrap"/></svg>
           </a>
-          <span class="text-muted">&copy; 2022 Expense Tracker, Inc</span>
+          <span class="text-muted">&copy; 2025 BudgetBuddy, Inc</span>
         </div>
       </footer>
     </div>
@@ -335,6 +427,97 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
    <script src='https://cdn.plot.ly/plotly-latest.min.js'></script> <!-- Plotly CDN -->
+
+    <div class="chatbot-container">
+        <div class="chatbot-header">
+            <h6>BudgetBuddy Bot</h6>
+            <button id="chatbot-close-btn">&times;</button>
+        </div>
+        <div class="chatbot-body">
+            <div class="chatbot-messages"></div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatbot-input" placeholder="Type your message...">
+            <button id="chatbot-send-btn">Send</button>
+        </div>
+    </div>
+    <button id="chatbot-toggle-btn" class="btn btn-primary">
+        <i class="fas fa-comments"></i>
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatbotContainer = document.querySelector('.chatbot-container');
+            const chatbotToggleBtn = document.getElementById('chatbot-toggle-btn');
+            const chatbotCloseBtn = document.getElementById('chatbot-close-btn');
+            const chatbotSendBtn = document.getElementById('chatbot-send-btn');
+            const chatbotInput = document.getElementById('chatbot-input');
+            const chatbotMessages = document.querySelector('.chatbot-messages');
+
+            // Toggle chatbot visibility
+            chatbotToggleBtn.addEventListener('click', () => {
+                chatbotContainer.style.display = 'flex';
+                chatbotToggleBtn.style.display = 'none';
+            });
+
+            // Close chatbot
+            chatbotCloseBtn.addEventListener('click', () => {
+                chatbotContainer.style.display = 'none';
+                chatbotToggleBtn.style.display = 'flex';
+            });
+
+            // Send message
+            chatbotSendBtn.addEventListener('click', sendMessage);
+            chatbotInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            function sendMessage() {
+                const message = chatbotInput.value.trim();
+                if (message) {
+                    // Add user message
+                    addMessage(message, 'user');
+                    chatbotInput.value = '';
+
+                    // Get bot response
+                    setTimeout(() => {
+                        const botResponse = getBotResponse(message);
+                        addMessage(botResponse, 'bot');
+                    }, 500);
+                }
+            }
+
+            function addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('chatbot-message', sender);
+                messageDiv.textContent = text;
+                chatbotMessages.appendChild(messageDiv);
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            }
+
+            function getBotResponse(message) {
+                const lowerMessage = message.toLowerCase();
+                
+                if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+                    return "Hello! How can I assist you with your expenses today?";
+                }
+                else if (lowerMessage.includes('add expense')) {
+                    return "To add an expense, click the 'Add New Record' button and fill out the form.";
+                }
+                else if (lowerMessage.includes('view expenses')) {
+                    return "Your recent expenses are displayed in the table. For detailed analysis, check the 'Analysis' page.";
+                }
+                else if (lowerMessage.includes('help')) {
+                    return "I can help you with: \n1. Adding expenses\n2. Viewing your expense history\n3. Understanding your financial analysis\n4. Managing your profile";
+                }
+                else {
+                    return "I'm sorry, I didn't understand that. Type 'help' to see what I can assist with.";
+                }
+            }
+        });
+    </script>
     </body>
 
     <script type='text/javascript'>

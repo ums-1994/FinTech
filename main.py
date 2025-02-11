@@ -220,19 +220,19 @@ def analysis():
             session['user_id'])
 
         data = support.execute_query('search', query2)
-        df = pd.DataFrame(data, columns=['Date', 'Expense', 'Note', 'Amount(₹)'])
+        df = pd.DataFrame(data, columns=['Date', 'Expense', 'Note', 'Amount(R)'])
         df = support.generate_df(df)
 
         if df.shape[0] > 0:
-            pie = support.meraPie(df=df, names='Expense', values='Amount(₹)', hole=0.7, hole_text='Expense',
+            pie = support.meraPie(df=df, names='Expense', values='Amount(R)', hole=0.7, hole_text='Expense',
                                   hole_font=20,
                                   height=180, width=180, margin=dict(t=1, b=1, l=1, r=1))
-            df2 = df.groupby(['Note', "Expense"]).sum().reset_index()[["Expense", 'Note', 'Amount(₹)']]
-            bar = support.meraBarChart(df=df2, x='Note', y='Amount(₹)', color="Expense", height=180, x_label="Category",
+            df2 = df.groupby(['Note', "Expense"]).sum().reset_index()[["Expense", 'Note', 'Amount(R)']]
+            bar = support.meraBarChart(df=df2, x='Note', y='Amount(R)', color="Expense", height=180, x_label="Category",
                                        show_xtick=False)
-            line = support.meraLine(df=df, x='Date', y='Amount(₹)', color='Expense', slider=False, show_legend=False,
+            line = support.meraLine(df=df, x='Date', y='Amount(R)', color='Expense', slider=False, show_legend=False,
                                     height=180)
-            scatter = support.meraScatter(df, 'Date', 'Amount(₹)', 'Expense', 'Amount(₹)', slider=False, )
+            scatter = support.meraScatter(df, 'Date', 'Amount(R)', 'Expense', 'Amount(R)', slider=False, )
             heat = support.meraHeatmap(df, 'Day_name', 'Month_name', height=200, title="Transaction count Day vs Month")
             month_bar = support.month_bar(df, 280)
             sun = support.meraSunburst(df, 280)
@@ -308,6 +308,29 @@ def logout():
         session.pop("user_id")  # delete the user_id in session (deleting session)
         return redirect('/')
     except:  # if already logged-out but in another tab still logged-in
+        return redirect('/')
+
+
+@app.route('/delete_expense/<int:expense_id>', methods=['POST'])
+def delete_expense(expense_id):
+    if 'user_id' in session:
+        try:
+            # First verify the expense belongs to the logged-in user
+            verify_query = """SELECT * FROM user_expenses WHERE id = {} AND user_id = {}""".format(
+                expense_id, session['user_id'])
+            expense = support.execute_query('search', verify_query)
+            
+            if len(expense) > 0:  # If expense exists and belongs to user
+                delete_query = """DELETE FROM user_expenses WHERE id = {}""".format(expense_id)
+                support.execute_query('insert', delete_query)
+                flash("Expense deleted successfully!")
+            else:
+                flash("Expense not found or unauthorized!")
+        except Exception as e:
+            print(e)
+            flash("Something went wrong while deleting the expense!")
+        return redirect('/home')
+    else:
         return redirect('/')
 
 
