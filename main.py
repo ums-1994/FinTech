@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, session, flash, jsonify, make_response
 import os
 from datetime import timedelta  # used for setting session timeout
 import pandas as pd
@@ -7,6 +7,12 @@ import plotly.express as px
 import json
 import warnings
 import support
+import io
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 
 warnings.filterwarnings("ignore")
 
@@ -330,6 +336,128 @@ def delete_expense(expense_id):
             print(e)
             flash("Something went wrong while deleting the expense!")
         return redirect('/home')
+    else:
+        return redirect('/')
+
+
+@app.route('/export/csv')
+def export_csv():
+    if 'user_id' in session:
+        query = """select pdate, expense, amount, pdescription from user_expenses where user_id = {}""".format(
+            session['user_id'])
+        data = support.execute_query('search', query)
+        df = pd.DataFrame(data, columns=['Date', 'Expense', 'Amount', 'Note'])
+        
+        # Create CSV in memory
+        output = io.StringIO()
+        df.to_csv(output, index=False)
+        output.seek(0)
+        
+        response = make_response(output.getvalue())
+        response.headers['Content-Disposition'] = 'attachment; filename=expenses.csv'
+        response.headers['Content-type'] = 'text/csv'
+        return response
+    else:
+        return redirect('/')
+
+@app.route('/export/excel')
+def export_excel():
+    if 'user_id' in session:
+        query = """select pdate, expense, amount, pdescription from user_expenses where user_id = {}""".format(
+            session['user_id'])
+        data = support.execute_query('search', query)
+        df = pd.DataFrame(data, columns=['Date', 'Expense', 'Amount', 'Note'])
+        
+        # Create Excel in memory
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            df.to_excel(writer, index=False, sheet_name='Expenses')
+        output.seek(0)
+        
+        response = make_response(output.getvalue())
+        response.headers['Content-Disposition'] = 'attachment; filename=expenses.xlsx'
+        response.headers['Content-type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        return response
+    else:
+        return redirect('/')
+
+@app.route('/export/pdf')
+def export_pdf():
+    if 'user_id' in session:
+        query = """select pdate, expense, amount, pdescription from user_expenses where user_id = {}""".format(
+            session['user_id'])
+        data = support.execute_query('search', query)
+        df = pd.DataFrame(data, columns=['Date', 'Expense', 'Amount', 'Note'])
+        
+        # Create PDF in memory
+        buffer = io.BytesIO()
+        pdf = SimpleDocTemplate(buffer, pagesize=letter)
+        elements = []
+        
+        # Convert DataFrame to list of lists
+        data = [df.columns.to_list()] + df.values.tolist()
+        
+        # Create table
+        table = Table(data)
+        style = TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.grey),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0,0), (-1,0), 12),
+            ('BACKGROUND', (0,1), (-1,-1), colors.beige),
+            ('GRID', (0,0), (-1,-1), 1, colors.black)
+        ])
+        table.setStyle(style)
+        elements.append(table)
+        
+        # Build PDF
+        pdf.build(elements)
+        buffer.seek(0)
+        
+        response = make_response(buffer.getvalue())
+        response.headers['Content-Disposition'] = 'attachment; filename=expenses.pdf'
+        response.headers['Content-type'] = 'application/pdf'
+        return response
+    else:
+        return redirect('/')
+
+@app.route('/edit_expense/<int:expense_id>', methods=['GET', 'POST'])
+def edit_expense(expense_id):
+    if 'user_id' in session:
+        if request.method == 'GET':
+            # Fetch the expense record to edit
+            query = """SELECT * FROM user_expenses WHERE id = {} AND user_id = {}""".format(
+                expense_id, session['user_id'])
+            expense = support.execute_query('search', query)
+            
+            if len(expense) > 0:  # If expense exists and belongs to user
+                return render_template('edit_expense.html', expense=expense[0])
+            else:
+                flash("Expense not found or unauthorized!")
+                return redirect('/home')
+        
+        elif request.method == 'POST':
+            # Update the expense record
+            date = request.form.get('e_date')
+            expense_type = request.form.get('e_type')
+            amount = request.form.get('amount')
+            notes = request.form.get('notes')
+            
+            try:
+                update_query = """UPDATE user_expenses SET 
+                    pdate = '{}', 
+                    expense = '{}', 
+                    amount = {}, 
+                    pdescription = '{}' 
+                    WHERE id = {} AND user_id = {}""".format(
+                    date, expense_type, amount, notes, expense_id, session['user_id'])
+                support.execute_query('insert', update_query)
+                flash("Expense updated successfully!")
+            except Exception as e:
+                print(e)
+                flash("Something went wrong while updating the expense!")
+            return redirect('/home')
     else:
         return redirect('/')
 
