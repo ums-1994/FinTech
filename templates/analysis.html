@@ -33,6 +33,11 @@
             color: #2962FF;
             margin-bottom: 15px;
         }
+        .chart-explanation {
+            margin-top: 15px;
+            font-style: italic;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -40,53 +45,47 @@
         <h1>Financial Analysis</h1>
         
         <!-- Insights Section -->
-        <div class="row">
-            <div class="col-md-4">
+        <div class="row mb-4">
+            <div class="col-md-3">
                 <div class="insight-card">
-                    <h4>Total Balance</h4>
-                    <h2> R{{ total_balance }}</h2>
+                    <h4>Total Spent</h4>
+                    <h2>R{{ total_spent }}</h2>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="insight-card">
-                    <h4>Monthly Average</h4>
-                    <h2>R {{ monthly_average }}</h2>
+                    <h4>Avg Monthly Spending</h4>
+                    <h2>R{{ avg_monthly_spending }}</h2>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="insight-card">
                     <h4>Largest Expense</h4>
-                    <h2>R {{ largest_expense }}</h2>
+                    <h2>R{{ largest_expense }}</h2>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="insight-card">
+                    <h4>Most Frequent Category</h4>
+                    <h2>{{ most_frequent_category }}</h2>
                 </div>
             </div>
         </div>
 
         <!-- Charts Section -->
-        <div class="row mb-3">
-            <div class="col-md-12">
-                <div class="chart-controls">
-                    <button class="btn btn-outline-primary" onclick="toggleChartType('pie')">Toggle Pie/Donut</button>
-                    <button class="btn btn-outline-primary" onclick="toggleChartType('line')">Toggle Line/Area</button>
-                    <div class="form-group">
-                        <label for="dateRange">Date Range:</label>
-                        <input type="month" id="startDate" onchange="filterCharts()">
-                        <input type="month" id="endDate" onchange="filterCharts()">
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="row">
             <div class="col-md-6">
                 <div class="chart-container">
                     <h2>Expense Distribution</h2>
                     <div id="pie"></div>
+                    <p class="chart-explanation">{{ pie_explanation }}</p>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="chart-container">
                     <h2>Monthly Trends</h2>
                     <div id="line"></div>
+                    <p class="chart-explanation">{{ line_explanation }}</p>
                 </div>
             </div>
         </div>
@@ -96,30 +95,29 @@
                 <div class="chart-container">
                     <h2>Category Breakdown</h2>
                     <div id="bar"></div>
+                    <p class="chart-explanation">{{ bar_explanation }}</p>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="chart-container">
                     <h2>Spending Heatmap</h2>
                     <div id="heat"></div>
+                    <p class="chart-explanation">{{ heat_explanation }}</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-        var pie_graph = "{{ pie | safe }}";
-        var bar_graph = "{{ bar | safe }}";
-        var line_graph = "{{ line | safe }}";
-        var heat_graph = "{{ heat | safe }}";
-        
-            
+        var pie_graph = JSON.parse('{{ pie | safe }}');
+        var bar_graph = JSON.parse('{{ bar | safe }}');
+        var line_graph = JSON.parse('{{ line | safe }}');
+        var heat_graph = JSON.parse('{{ heat | safe }}');
 
         Plotly.plot('pie', pie_graph, {});
         Plotly.plot('bar', bar_graph, {});
         Plotly.plot('line', line_graph, {});
         Plotly.plot('heat', heat_graph, {});
-        
     </script>
 
     <script>

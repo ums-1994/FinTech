@@ -196,17 +196,20 @@ def makePieChart(df=None, expense='Earning', names='Note', values='Amount', hole
 
 
 def meraBarChart(df=None, x=None, y=None, color=None, x_label=None, y_label=None, height=None, width=None,
-                 show_legend=False, show_xtick=True, show_ytick=True, x_tickangle=0, y_tickangle=0, barmode='relative'):
+                 show_legend=False, show_xtick=True, show_ytick=True, x_tickangle=0, y_tickangle=0, barmode='relative', title=None):
     bar = px.bar(data_frame=df, x=x, y=y, color=color, template="plotly_dark", barmode=barmode,
-                 labels={'x': x_label, 'y': y_label}, height=height, width=width)
+                 labels={'x': x_label, 'y': y_label}, height=height, width=width, title=title)
     bar.update(layout_showlegend=show_legend)
     bar.update_layout(
         margin=dict(l=2, r=2, t=2, b=2),
         paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)')
+        plot_bgcolor='rgba(0,0,0,0)',
+        xaxis=dict(title_font=dict(color='#333333'), tickfont=dict(color='#555555')),
+        yaxis=dict(title_font=dict(color='#333333'), tickfont=dict(color='#555555')),
+        legend=dict(font=dict(color='#444444'))
+    )
     bar.update_layout(xaxis=dict(showticklabels=show_xtick, tickangle=x_tickangle),
                       yaxis=dict(showticklabels=show_ytick, tickangle=y_tickangle))
-
     return json.dumps(bar, cls=plotly.utils.PlotlyJSONEncoder)
 
 
@@ -319,31 +322,26 @@ def expense_goal(df):
 # --------------- Analysis -----------------
 def meraPie(df=None, names=None, values=None, color=None, width=None, height=None, hole=None, hole_text=None,
             margin=None, hole_font=10):
-    fig = px.pie(data_frame=df, names=names, values=values, color=color, hole=hole, width=width, height=height)
-    fig.update_traces(textposition='inside', textinfo='percent+label')
-    fig.update_layout(annotations=[dict(text=hole_text, y=0.5, font_size=hole_font, showarrow=False)])
-    fig.update_layout(margin=margin, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-    fig.update(layout_showlegend=False)
-    # fig.update_layout(title='Total Balance', title_font_size=15, title_font_color='green')
+    fig = px.pie(data_frame=df, names=names, values=values, color=color, hole=hole, width=width, height=height,
+                 color_discrete_sequence=px.colors.qualitative.Pastel)
+    fig.update_traces(textposition='inside', textinfo='percent+label', textfont=dict(color='#333333'))
+    fig.update_layout(annotations=[dict(text=hole_text, y=0.5, font_size=hole_font, font_color='#555555', showarrow=False)])
+    fig.update_layout(margin=margin, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                      legend=dict(font=dict(color='#444444')))
+    fig.update(layout_showlegend=True)
     return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
 
 def meraLine(df=None, x=None, y=None, color=None, slider=True, title=None, height=180, width=None, show_legend=True):
-    # Line Chart
-    line = px.line(data_frame=df, x=x, y=y, color=color, template="plotly_dark", height=height, width=width)
-    line.update_xaxes(rangeslider_visible=slider)
+    line = px.line(data_frame=df, x=x, y=y, color=color, template="plotly_dark", height=height, width=width,
+                   color_discrete_sequence=px.colors.qualitative.Set2)
+    line.update_xaxes(rangeslider_visible=slider, title_font=dict(color='#333333'), tickfont=dict(color='#555555'))
+    line.update_yaxes(title_font=dict(color='#333333'), tickfont=dict(color='#555555'))
     line.update(layout_showlegend=show_legend)
-    line.update_layout(title_text=title, title_x=0.,
-                       legend=dict(
-                           orientation="h",
-                           yanchor="bottom",
-                           y=1.02,
-                           xanchor="right",
-                           x=1
-                       ),
+    line.update_layout(title_text=title, title_x=0., title_font=dict(color='#333333'),
+                       legend=dict(font=dict(color='#444444')),
                        margin=dict(l=2, r=2, t=2, b=2),
-                       paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'
-                       )
+                       paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
     return json.dumps(line, cls=plotly.utils.PlotlyJSONEncoder)
 
 
@@ -370,14 +368,14 @@ def meraScatter(df=None, x=None, y=None, color=None, size=None, slider=True, tit
 
 def meraHeatmap(df=None, x=None, y=None, text_auto=True, aspect='auto', height=None, width=None, title=None):
     fig = px.imshow(pd.crosstab(df[x], df[y]), text_auto=text_auto, aspect=aspect, height=height, width=width,
-                    template='plotly_dark')
+                    template='plotly_dark', color_continuous_scale=px.colors.sequential.Plasma)
     fig.update(layout_showlegend=False)
-    fig.update_layout(xaxis=dict(showticklabels=False),
-                      yaxis=dict(showticklabels=False))
-    fig.update_layout(title_text=title, title_x=0.5,
+    fig.update_layout(xaxis=dict(showticklabels=False, title_font=dict(color='#333333')),
+                      yaxis=dict(showticklabels=False, title_font=dict(color='#333333')),
+                      coloraxis_colorbar=dict(title_font=dict(color='#333333'), tickfont=dict(color='#555555')))
+    fig.update_layout(title_text=title, title_x=0.5, title_font=dict(color='#333333'),
                       margin=dict(l=2, r=2, t=30, b=2),
-                      paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'
-                      )
+                      paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
     return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
 

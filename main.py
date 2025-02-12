@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, flash, jsonify, make_response
+from flask import Flask, render_template, request, redirect, session, flash, jsonify, make_response, Response
 import os
 from datetime import timedelta  # used for setting session timeout
 import pandas as pd
@@ -13,6 +13,10 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from io import BytesIO
+from reportlab.lib.utils import ImageReader
+import tempfile
+import plotly.io as pio
 
 warnings.filterwarnings("ignore")
 
@@ -220,50 +224,67 @@ def add_expense():
 
 @app.route('/analysis')
 def analysis():
-    if 'user_id' in session:  # if already logged-in
-        query = """select * from user_login where user_id = {} """.format(session['user_id'])
+    if 'user_id' in session:
+        # Fetch user data
+        query = """SELECT * FROM user_login WHERE user_id = {}""".format(session['user_id'])
         userdata = support.execute_query('search', query)
-        query2 = """select pdate,expense, pdescription, amount from user_expenses where user_id = {}""".format(
+        
+        # Fetch expense data
+        query2 = """SELECT pdate, expense, pdescription, amount FROM user_expenses WHERE user_id = {}""".format(
             session['user_id'])
-
         data = support.execute_query('search', query2)
+        
+        # Create DataFrame
         df = pd.DataFrame(data, columns=['Date', 'Expense', 'Note', 'Amount(R)'])
         df = support.generate_df(df)
 
         if df.shape[0] > 0:
+            # Generate visualizations with explanations
+            # Expense Distribution (Pie Chart)
             pie = support.meraPie(df=df, names='Expense', values='Amount(R)', hole=0.7, hole_text='Expense',
-                                  hole_font=20,
-                                  height=180, width=180, margin=dict(t=1, b=1, l=1, r=1))
-            df2 = df.groupby(['Note', "Expense"]).sum().reset_index()[["Expense", 'Note', 'Amount(R)']]
-            bar = support.meraBarChart(df=df2, x='Note', y='Amount(R)', color="Expense", height=180, x_label="Category",
-                                       show_xtick=False)
-            line = support.meraLine(df=df, x='Date', y='Amount(R)', color='Expense', slider=False, show_legend=False,
-                                    height=180)
-            scatter = support.meraScatter(df, 'Date', 'Amount(R)', 'Expense', 'Amount(R)', slider=False, )
-            heat = support.meraHeatmap(df, 'Day_name', 'Month_name', height=200, title="Transaction count Day vs Month")
-            month_bar = support.month_bar(df, 280)
-            sun = support.meraSunburst(df, 280)
+                                  hole_font=20, height=400, width=400, margin=dict(t=1, b=1, l=1, r=1))
+            pie_explanation = "This pie chart shows the distribution of your expenses across different categories."
 
-            # Calculate new insights
-            total_balance = df['Amount(R)'].sum()
-            monthly_average = df.groupby('Month')['Amount(R)'].sum().mean()
+            # Monthly Trends (Line Chart)
+            line = support.meraLine(df=df, x='Date', y='Amount(R)', color='Expense', 
+                                   slider=False, show_legend=True, height=400, title="Monthly Spending Trends")
+            line_explanation = "This line chart tracks your spending trends over time, showing how your expenses vary month by month."
+
+            # Category Breakdown (Bar Chart)
+            bar = support.meraBarChart(df=df.groupby(['Note', "Expense"]).sum().reset_index(), 
+                                      x='Note', y='Amount(R)', color="Expense", height=400, 
+                                      x_label="Category", y_label="Amount (R)", show_xtick=True, title="Category Breakdown")
+            bar_explanation = "This bar chart breaks down your expenses by subcategories, showing where your money is being spent."
+
+            # Spending Heatmap (Heatmap)
+            heat = support.meraHeatmap(df, 'Day_name', 'Month_name', height=400, 
+                                      title="Transaction count Day vs Month")
+            heat_explanation = "This heatmap shows your spending patterns by day and month, highlighting when you spend the most."
+
+            # Calculate insights
+            total_spent = df['Amount(R)'].sum()
+            avg_monthly_spending = df.groupby('Month')['Amount(R)'].sum().mean()
             largest_expense = df['Amount(R)'].max()
-            
+            most_frequent_category = df['Expense'].mode()[0]
+
             return render_template('analysis.html',
-                                   user_name=userdata[0][1],
-                                   pie=pie,
-                                   bar=bar,
-                                   line=line,
-                                   scatter=scatter,
-                                   heat=heat,
-                                   month_bar=month_bar,
-                                   sun=sun
-                                   )
+                                 user_name=userdata[0][1],
+                                 pie=json.dumps(pie),
+                                 bar=json.dumps(bar),
+                                 line=json.dumps(line),
+                                 heat=json.dumps(heat),
+                                 pie_explanation=pie_explanation,
+                                 line_explanation=line_explanation,
+                                 bar_explanation=bar_explanation,
+                                 heat_explanation=heat_explanation,
+                                 total_spent=total_spent,
+                                 avg_monthly_spending=avg_monthly_spending,
+                                 largest_expense=largest_expense,
+                                 most_frequent_category=most_frequent_category)
         else:
             flash("No data records to analyze.")
             return redirect('/home')
-
-    else:  # if not logged-in
+    else:
         return redirect('/')
 
 
