@@ -382,7 +382,7 @@ def meraHeatmap(df=None, x=None, y=None, text_auto=True, aspect='auto', height=N
 
 
 def month_bar(df=None, height=None, width=None):
-    t = df.groupby(['Month', 'Expense']).sum().reset_index()[['Month', 'Expense', 'Amount(₹)']]
+    t = df.groupby(['Month', 'Expense']).sum().reset_index()[['Month', 'Expense', 'Amount(R)']]
 
     month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
              "November", "December"]
@@ -394,7 +394,7 @@ def month_bar(df=None, height=None, width=None):
 
     t['Month'] = t['Month'].apply(lambda x: m[x])
 
-    fig = px.bar(t, x='Month', y='Amount(₹)', color='Expense', text_auto=True, height=height, width=width,
+    fig = px.bar(t, x='Month', y='Amount(R)', color='Expense', text_auto=True, height=height, width=width,
                  template='plotly_dark')
     fig.update_layout(legend=dict(
         orientation="h",
@@ -410,7 +410,7 @@ def month_bar(df=None, height=None, width=None):
 
 
 def meraSunburst(df=None, height=None, width=None):
-    fig = px.sunburst(df, path=['Year', 'Expense', 'Note'], values='Amount(₹)', height=height, width=width)
+    fig = px.sunburst(df, path=['Year', 'Expense', 'Note'], values='Amount(R)', height=height, width=width)
     fig.update_layout(margin=dict(l=1, r=1, t=1, b=1), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
     fig.update(layout_showlegend=False)
     return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
