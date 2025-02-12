@@ -336,7 +336,7 @@
                               <th scope="row">{{ loop.index }}</th>
                               <td>{{ expense[2] }}</td>
                               <td>{{ expense[3] }}</td>
-                              <td>{{ expense[4] }}</td>
+                              <td>R {{ expense[4] }}</td>
                               <td>{{ expense[5] }}</td>
                               <td>
                                   <div class="btn-group">
@@ -434,10 +434,10 @@
                               {% for month in monthly_data %}
                               <li>
                                   <h6>{{ month['Month'] }}</h6>
-                                  <span>{{ month['Earning'] }}</span>
-                                  <span>{{ month['Spend'] }}</span>
-                                  <span>{{ month['Investment'] }}</span>
-                                  <span>{{ month['Saving'] }}</span>
+                                  <span>R {{ month['Earning'] }}</span>
+                                  <span>R {{ month['Spend'] }}</span>
+                                  <span>R {{ month['Investment'] }}</span>
+                                  <span>R {{ month['Saving'] }}</span>
                               </li>
                               {% endfor %}
                           </div>
@@ -616,24 +616,35 @@
     </body>
 
     <script type='text/javascript'>
-      var graphs = {{bar | safe}};
-      Plotly.plot('bar',graphs,{});
+      // Initialize charts with error handling
+      try {
+          var barGraph = "{{ bar | safe }}";
+          if (barGraph) {
+              Plotly.plot('bar', JSON.parse(barGraph), {});
+          }
 
-      var graphs4 = {{stack_bar | safe}};
-      Plotly.plot('stack',graphs4,{});
+          var stackGraph = "{{ stack_bar | safe }}";
+          if (stackGraph) {
+              Plotly.plot('stack', JSON.parse(stackGraph), {});
+          }
 
-      var pie_graph1 = {{pie1 | safe}};
-      var pie_graph2 = {{pie2 | safe}};
-      var pie_graph3 = {{pie3 | safe}};
-      var pie_graph4 = {{pie4 | safe}};
-      var pie_graph5 = {{pie5 | safe}};
-      var pie_graph6 = {{pie6 | safe}};
-      Plotly.plot('pie11',pie_graph1,{});
-      Plotly.plot('pie22',pie_graph2,{});
-      Plotly.plot('pie55',pie_graph5,{});
-      Plotly.plot('pie33',pie_graph3,{});
-      Plotly.plot('pie44',pie_graph4,{});
-      Plotly.plot('pie66',pie_graph6,{});
+          // Initialize pie charts
+          const pieCharts = [
+              {id: 'pie11', data: "{{ pie1 | safe }}"},
+              {id: 'pie22', data: "{{ pie2 | safe }}"},
+              {id: 'pie33', data: "{{ pie3 | safe }}"},
+              {id: 'pie44', data: "{{ pie4 | safe }}"},
+              {id: 'pie55', data: "{{ pie5 | safe }}"},
+              {id: 'pie66', data: "{{ pie6 | safe }}"}
+          ];
 
+          pieCharts.forEach(chart => {
+              if (chart.data) {
+                  Plotly.plot(chart.id, JSON.parse(chart.data), {});
+              }
+          });
+      } catch (error) {
+          console.error('Error initializing charts:', error);
+      }
     </script>
 </html>

@@ -244,6 +244,11 @@ def analysis():
             month_bar = support.month_bar(df, 280)
             sun = support.meraSunburst(df, 280)
 
+            # Calculate new insights
+            total_balance = df['Amount(R)'].sum()
+            monthly_average = df.groupby('Month')['Amount(R)'].sum().mean()
+            largest_expense = df['Amount(R)'].max()
+            
             return render_template('analysis.html',
                                    user_name=userdata[0][1],
                                    pie=pie,

@@ -3,63 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analysis</title>
+    <title>Analysis - BudgetBuddy</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
     <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+        h2 {
+            color: #2962FF;
+            margin-bottom: 20px;
+        }
+        .insight-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .insight-card h4 {
+            color: #2962FF;
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Analysis</h1>
+        <h1>Financial Analysis</h1>
+        
+        <!-- Insights Section -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="insight-card">
+                    <h4>Total Balance</h4>
+                    <h2> R{{ total_balance }}</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="insight-card">
+                    <h4>Monthly Average</h4>
+                    <h2>R {{ monthly_average }}</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="insight-card">
+                    <h4>Largest Expense</h4>
+                    <h2>R {{ largest_expense }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <div class="chart-controls">
+                    <button class="btn btn-outline-primary" onclick="toggleChartType('pie')">Toggle Pie/Donut</button>
+                    <button class="btn btn-outline-primary" onclick="toggleChartType('line')">Toggle Line/Area</button>
+                    <div class="form-group">
+                        <label for="dateRange">Date Range:</label>
+                        <input type="month" id="startDate" onchange="filterCharts()">
+                        <input type="month" id="endDate" onchange="filterCharts()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-md-6">
-                <div id="pie"></div>
+                <div class="chart-container">
+                    <h2>Expense Distribution</h2>
+                    <div id="pie"></div>
+                </div>
             </div>
             <div class="col-md-6">
-                <div id="bar"></div>
+                <div class="chart-container">
+                    <h2>Monthly Trends</h2>
+                    <div id="line"></div>
+                </div>
             </div>
         </div>
+
         <div class="row">
-            <div class="col-md-12">
-                <div id="line"></div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h2>Category Breakdown</h2>
+                    <div id="bar"></div>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div id="scatter"></div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div id="heat"></div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div id="month_bar"></div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div id="sun"></div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h2>Spending Heatmap</h2>
+                    <div id="heat"></div>
+                </div>
             </div>
         </div>
     </div>
+
     <script type="text/javascript">
-        var pie_graph = {{ pie | safe }};
-        var bar_graph = {{ bar | safe }};
-        var line_graph = {{ line | safe }};
-        var scatter_graph = {{ scatter | safe }};
-        var heat_graph = {{ heat | safe }};
-        var month_bar_graph = {{ month_bar | safe }};
-        var sun_graph = {{ sun | safe }};
+        var pie_graph = "{{ pie | safe }}";
+        var bar_graph = "{{ bar | safe }}";
+        var line_graph = "{{ line | safe }}";
+        var heat_graph = "{{ heat | safe }}";
+        
+            
 
         Plotly.plot('pie', pie_graph, {});
         Plotly.plot('bar', bar_graph, {});
         Plotly.plot('line', line_graph, {});
-        Plotly.plot('scatter', scatter_graph, {});
         Plotly.plot('heat', heat_graph, {});
-        Plotly.plot('month_bar', month_bar_graph, {});
-        Plotly.plot('sun', sun_graph, {});
+        
+    </script>
+
+    <script>
+        function toggleChartType(chartId) {
+            const chart = document.getElementById(chartId);
+            const data = chart.data;
+            const layout = chart.layout;
+            
+            if (chartId === 'pie') {
+                layout.hole = layout.hole ? 0 : 0.4;
+            } else if (chartId === 'line') {
+                layout.fill = layout.fill ? '' : 'tozeroy';
+            }
+            
+            Plotly.react(chartId, data, layout);
+        }
+
+        function filterCharts() {
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+            
+            // Implement filtering logic using Plotly.restyle
+            // You'll need to pass filtered data from your backend
+        }
+
+        function downloadCSV() {
+            const link = document.createElement('a');
+            link.href = '/download-analysis';
+            link.download = 'analysis.csv';
+            link.click();
+        }
     </script>
 </body>
 </html>
