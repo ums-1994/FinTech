@@ -468,5 +468,55 @@ def edit_expense(expense_id):
         return redirect('/')
 
 
+@app.route('/check-credit-worthiness')
+def check_credit_worthiness():
+    if 'user_id' not in session:
+        return redirect('/')
+
+    # Fetch user data
+    query = """SELECT * FROM user_login WHERE user_id = {}""".format(session['user_id'])
+    userdata = support.execute_query('search', query)
+    
+    # Fetch expense data
+    query2 = """SELECT pdate, expense, pdescription, amount FROM user_expenses WHERE user_id = {}""".format(
+        session['user_id'])
+    data = support.execute_query('search', query2)
+    
+    # Create DataFrame
+    df = pd.DataFrame(data, columns=['Date', 'Expense', 'Note', 'Amount(R)'])
+    df = support.generate_df(df)
+
+    if df.shape[0] > 0:
+        # Calculate credit worthiness score
+        total_spent = df['Amount(R)'].sum()
+        avg_monthly_spending = df.groupby('Month')['Amount(R)'].sum().mean()
+        savings = df[df['Expense'] == 'Saving']['Amount(R)'].sum()
+        debt = df[df['Expense'] == 'Debt']['Amount(R)'].sum()
+
+        # Simple credit worthiness formula (customize as needed)
+        credit_score = (savings - debt) / (avg_monthly_spending + 1) * 100
+        credit_score = max(0, min(100, credit_score))  # Ensure score is between 0 and 100
+
+        # Credit rating categories
+        if credit_score >= 80:
+            credit_rating = "Excellent"
+        elif credit_score >= 60:
+            credit_rating = "Good"
+        elif credit_score >= 40:
+            credit_rating = "Fair"
+        else:
+            credit_rating = "Poor"
+
+        return jsonify({
+            'credit_score': round(credit_score, 2),
+            'credit_rating': credit_rating,
+            'total_spent': total_spent,
+            'savings': savings,
+            'debt': debt
+        })
+    else:
+        return jsonify({'error': 'No data records to analyze.'})
+
+
 if __name__ == "__main__":
     app.run(debug=True)

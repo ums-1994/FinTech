@@ -59,6 +59,16 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h4>Credit Worthiness</h4>
+                        <p><strong>Credit Score:</strong> <span id="credit-score">Loading...</span></p>
+                        <p><strong>Credit Rating:</strong> <span id="credit-rating">Loading...</span></p>
+                        <button class="btn btn-primary" onclick="checkCreditWorthiness()">Check Credit Worthiness</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     </div>
@@ -70,6 +80,27 @@
                 }, 3000);
     </script>
 
+    <script>
+        function checkCreditWorthiness() {
+            fetch('/check-credit-worthiness')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        document.getElementById('credit-score').textContent = data.credit_score;
+                        document.getElementById('credit-rating').textContent = data.credit_rating;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while checking credit worthiness.');
+                });
+        }
+
+        // Automatically check credit worthiness when the page loads
+        window.onload = checkCreditWorthiness;
+    </script>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
