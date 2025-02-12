@@ -169,6 +169,7 @@ def home():
             pie6 = support.makePieChart(df, 'Investment', 'Note', size=size)
         except:
             pie1, pie2, pie3, pie4, pie5, pie6 = None, None, None, None, None, None
+
         return render_template('home.html',
                                user_name=userdata[0][1],
                                df_size=df.shape[0],

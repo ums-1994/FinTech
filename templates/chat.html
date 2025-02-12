@@ -1,0 +1,47 @@
+<script>
+async function sendMessage() {
+    const inputField = document.getElementById('userInput');
+    const message = inputField.value.trim();
+    
+    if(message) {
+        addMessage(message, 'user');
+        inputField.value = '';
+        
+        // Show loading indicator
+        const loadingIndicator = document.createElement('div');
+        loadingIndicator.className = 'message-bubble bot-message';
+        loadingIndicator.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+        chatHistory.appendChild(loadingIndicator);
+        
+        try {
+            // ... existing fetch code ...
+            
+            // Remove loading indicator
+            chatHistory.removeChild(loadingIndicator);
+            addMessage(data.response, 'bot');
+            
+        } catch(error) {
+            // Remove loading indicator on error
+            chatHistory.removeChild(loadingIndicator);
+            addMessage("Sorry, I'm having trouble connecting.", 'bot');
+        }
+    }
+}
+</script>
+
+<style>
+.typing-indicator span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 3px;
+    background: #ddd;
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out;
+}
+
+@keyframes typing {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+</style> 

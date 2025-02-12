@@ -477,7 +477,7 @@
         <div class="col-md-4 d-flex align-items-center">
           <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
             <svg class="bi" width="30" height="24"><use xlink:href="#bootstrap"/></svg>
-          </a>
+          </a
           <span class="text-muted">&copy; 2025 BudgetBuddy, Inc</span>
         </div>
       </footer>
@@ -587,6 +587,32 @@
             }
         });
     </script>
+
+    <!-- Add this modal just before the closing </body> tag -->
+    <div class="modal top fade" id="password_reset" tabindex="-1" aria-labelledby="exampleModalLabel"
+         aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
+        <div class="modal-dialog" style="width: 300px;">
+            <div class="modal-content text-center">
+                <div class="modal-header h5 text-white bg-primary justify-content-center">
+                    Password Reset
+                </div>
+                <div class="modal-body px-5">
+                    <p class="py-2">
+                        Enter your registered email address to reset your password.
+                    </p>
+                    <form class="form" method="post" action="/reset">
+                        <input type="email" class="form-control" id="femail" name="femail" placeholder="Enter registered email" required>
+                        <input type="password" class="form-control my-1" name="pswd" placeholder="Enter New Password" required><br>
+                        <input type="submit" class="btn my-2 btn-primary btn-block" id="reset" name="reset" value="Reset">
+                    </form>
+                    <div class="d-flex justify-content-between mt-4">
+                        <a class="" href="/">Login</a>
+                        <a class="" href="/register">Register</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     </body>
 
     <script type='text/javascript'>
