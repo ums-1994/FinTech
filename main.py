@@ -387,27 +387,6 @@ def export_csv():
     else:
         return redirect('/')
 
-@app.route('/export/excel')
-def export_excel():
-    if 'user_id' in session:
-        query = """select pdate, expense, amount, pdescription from user_expenses where user_id = {}""".format(
-            session['user_id'])
-        data = support.execute_query('search', query)
-        df = pd.DataFrame(data, columns=['Date', 'Expense', 'Amount', 'Note'])
-        
-        # Create Excel in memory
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df.to_excel(writer, index=False, sheet_name='Expenses')
-        output.seek(0)
-        
-        response = make_response(output.getvalue())
-        response.headers['Content-Disposition'] = 'attachment; filename=expenses.xlsx'
-        response.headers['Content-type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        return response
-    else:
-        return redirect('/')
-
 @app.route('/export/pdf')
 def export_pdf():
     if 'user_id' in session:
