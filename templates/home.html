@@ -159,7 +159,6 @@
                          <h4>Latest 5 Records</h4>
                      </div>
                      <div class="col-md-8 text-right">
-                        <button type="button" data-toggle="modal" data-target="#add_record" class="btn btn-primary btn-sm">Add New Record</button>
                         <div class="btn-group">
                             <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Export Reports
@@ -167,56 +166,6 @@
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="/export/csv">Export as CSV</a>
                                 <a class="dropdown-item" href="/export/pdf">Export as PDF</a>
-                            </div>
-                        </div>
-                     </div>
-
-                     <!-- Add new record modal-->
-                     <div class="modal top fade mt-60" id="add_record" tabindex="-1" aria-labelledby="exampleModalLabel"
-                            aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
-                        <div class="modal-dialog" style="width: 400px;">
-                            <div class="modal-content text-center">
-                                <div class="modal-header h5 text-white bg-success justify-content-center">
-                                    Add New  Expense Record
-                                </div>
-                                <div class="modal-body px-5">
-                                    <form class="form" method="post" action="/home/add_expense" >
-                                        <input type="date" class="form-control my-1" id="e_date" name="e_date" placeholder="Select Date" required>
-                                        <select class="form-control my-1" name="e_type" required>
-                                            <option selected hidden value="None">Expense type...</option>
-                                            <option value="Earning">Earning</option>
-                                            <option value="Spend">Spend</option>
-                                            <option value="Investment">Investment</option>
-                                            <option value="Saving">Saving</option>
-                                        </select>
-                                        <input type="number" class="form-control my-1" id="amount" name="amount" placeholder="Enter Amount" required>
-                                        <select class="form-control my-1" name="notes" required>
-                                            <option selected hidden value="None">Select...</option>
-                                            
-                                            <option value="Spend">Spend</option>
-                                            <option value="Investment">Investment</option>
-                                            <option value="Saving">Saving</option>
-                                            <option value="Salary">Salary</option>
-                                            <option value="Bonus">Bonus</option>
-                                            <option value="Rental Income">Rental Income</option>
-                                            <option value="Interest Income">Interest Income</option>
-                                            <option value="Dividend Income">Dividend Income</option>
-                                            <option value="Gifts">Gifts</option>
-                                            <option value="Groceries">Groceries</option>
-                                            <option value="Fuel">Fuel</option>
-                                            <option value="Medical">Medical</option>
-                                            <option value="Fees">Fees</option>
-                                            <option value="Vacation">Vocation</option>
-                                            <option value="Fixed Deposit">Fixed Deposit</option>
-                                            <option value="Retirement Plan">Retirement Plan</option>
-                                            <option value="Real Estate">Real Estate</option>
-                                            <option value="Child Saving">Child Saving</option>
-                                            <option value="Bank">Bank</option>
-                                            <option value="Others">Others</option>
-                                        </select>
-                                        <input type="submit" class="btn my-2 btn-primary btn-block" id="add" name="add" value="Submit">
-                                    </form>
-                                </div>
                             </div>
                         </div>
                      </div>
@@ -530,20 +479,127 @@
         <a href="/analysis" class="btn btn-primary btn-lg">View Financial Analysis</a>
     </div>
 
-    <div class="fixed-bottom text-end mb-3 me-3">
-        <button class="btn btn-success btn-lg rounded-circle shadow" data-toggle="modal" data-target="#addExpenseModal">
-            <i class="fas fa-plus"></i>
-        </button>
-    </div>
-
     <div class="form-check form-switch">
         <input class="form-check-input" type="checkbox" id="darkModeToggle">
         <label class="form-check-label" for="darkModeToggle">Dark Mode</label>
     </div>
 
-    <div class="fixed-bottom text-start mb-3 ms-3">
-        <button class="btn btn-info btn-lg rounded-circle shadow" data-toggle="modal" data-target="#feedbackModal">
-            <i class="fas fa-comment"></i>
+    <!-- Add this script to define clearFilters() -->
+    <script>
+        function clearFilters() {
+            // Clear search input
+            document.getElementById('searchInput').value = '';
+
+            // Reset category filter
+            document.getElementById('categoryFilter').selectedIndex = 0;
+
+            // Clear date filters
+            document.getElementById('startDateFilter').value = '';
+            document.getElementById('endDateFilter').value = '';
+
+            // Optionally, reapply filters or refresh the table
+            applyFilters(); // If you have a function to refresh the table
+        }
+    </script>
+
+    <!-- Chatbot Container -->
+    <div id="chatbot-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <div id="chatbot" style="display: none; width: 300px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title">BudgetBuddy Chatbot</h5>
+                    <button type="button" class="btn btn-sm btn-light float-right" onclick="toggleChatbot()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div id="chatbot-messages" style="height: 200px; overflow-y: auto; padding: 10px;">
+                        <!-- Chat messages will appear here -->
+                    </div>
+                    <div class="input-group p-2">
+                        <input type="text" id="chatbot-input" class="form-control" placeholder="Type a message...">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" onclick="sendMessage()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-primary btn-lg rounded-circle shadow" onclick="toggleChatbot()">
+            <i class="fas fa-comments"></i>
         </button>
     </div>
+
+    <!-- Chatbot Script -->
+    <script>
+        // Toggle chatbot visibility
+        function toggleChatbot() {
+            const chatbot = document.getElementById('chatbot');
+            chatbot.style.display = chatbot.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Send a message to the chatbot
+        function sendMessage() {
+            const input = document.getElementById('chatbot-input');
+            const message = input.value.trim();
+            if (message === '') return;
+
+            // Add user message to the chat
+            addMessage('user', message);
+            input.value = '';
+
+            // Send message to the backend and get response
+            fetch('/chatbot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.response) {
+                    addMessage('bot', data.response);
+                } else if (data.error) {
+                    addMessage('bot', 'Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                addMessage('bot', 'Something went wrong. Please try again.');
+            });
+        }
+
+        // Add a message to the chat
+        function addMessage(sender, message) {
+            const chat = document.getElementById('chatbot-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `mb-2 ${sender === 'user' ? 'text-right' : 'text-left'}`;
+            messageDiv.innerHTML = `
+                <span class="badge ${sender === 'user' ? 'badge-primary' : 'badge-secondary'}">
+                    ${message}
+                </span>
+            `;
+            chat.appendChild(messageDiv);
+            chat.scrollTop = chat.scrollHeight; // Auto-scroll to the latest message
+        }
+
+        // Initialize chatbot with a greeting
+        window.onload = function() {
+            fetch('/chatbot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: '' }), // Empty message to trigger greeting
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.response) {
+                    addMessage('bot', data.response);
+                }
+            });
+        };
+    </script>
 </html>

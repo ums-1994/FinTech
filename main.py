@@ -624,5 +624,47 @@ def upload_profile_image():
         return redirect('/profile')
 
 
+# Simple Chatbot Logic
+class Chatbot:
+    def __init__(self, user_name):
+        self.user_name = user_name
+
+    def greet(self):
+        return f"Hi, {self.user_name}! I'm BudgetBuddy. How can I assist you today?"
+
+    def respond(self, message):
+        if "expense" in message.lower():
+            return "You can add an expense by clicking the 'Add Expense' button."
+        elif "savings" in message.lower():
+            return "To track your savings, go to the 'Analysis' section."
+        elif "help" in message.lower():
+            return "I can help you manage your expenses, track savings, and analyze your spending habits."
+        else:
+            return "I'm here to help with your budgeting. Let me know if you have any questions!"
+
+# Chatbot Route
+@app.route('/chatbot', methods=['POST'])
+def chatbot():
+    if 'user_id' not in session:
+        return jsonify({'error': 'User not logged in'})
+
+    # Fetch user data
+    query = """SELECT * FROM user_login WHERE user_id = {}""".format(session['user_id'])
+    userdata = support.execute_query('search', query)
+    user_name = userdata[0][1]  # Get the user's name
+
+    # Initialize chatbot
+    bot = Chatbot(user_name)
+
+    # Get user message from the request
+    user_message = request.json.get('message')
+
+    if user_message:
+        # Get chatbot response
+        response = bot.respond(user_message)
+        return jsonify({'response': response})
+    else:
+        return jsonify({'error': 'No message provided'})
+
 if __name__ == "__main__":
     app.run(debug=True)
