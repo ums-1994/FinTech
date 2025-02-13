@@ -98,26 +98,22 @@
                     <p class="chart-explanation">{{ bar_explanation }}</p>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <h2>Spending Heatmap</h2>
-                    <div id="heat"></div>
-                    <p class="chart-explanation">{{ heat_explanation }}</p>
-                </div>
-            </div>
         </div>
     </div>
 
-    <script type="text/javascript">
-        var pie_graph = JSON.parse('{{ pie | safe }}');
-        var bar_graph = JSON.parse('{{ bar | safe }}');
-        var line_graph = JSON.parse('{{ line | safe }}');
-        var heat_graph = JSON.parse('{{ heat | safe }}');
+    <!-- Load Plotly library -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-        Plotly.plot('pie', pie_graph, {});
-        Plotly.plot('bar', bar_graph, {});
-        Plotly.plot('line', line_graph, {});
-        Plotly.plot('heat', heat_graph, {});
+    <script type="text/javascript">
+        // Parse JSON data
+        var pie_graph = JSON.parse('{{ pie | safe }}');
+        var line_graph = JSON.parse('{{ line | safe }}');
+        var bar_graph = JSON.parse('{{ bar | safe }}');
+
+        // Render graphs
+        Plotly.newPlot('pie', pie_graph.data, pie_graph.layout);
+        Plotly.newPlot('line', line_graph.data, line_graph.layout);
+        Plotly.newPlot('bar', bar_graph.data, bar_graph.layout);
     </script>
 
     <script>

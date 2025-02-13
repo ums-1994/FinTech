@@ -37,10 +37,18 @@
         <div class="row">
             <div class="col-md-3 border-right">
                 <div class="d-flex flex-column align-items-center text-center p-3 py-3">
-                    <img class="rounded-circle mt-5" width="150px" src="https://st3.depositphotos.com/15648834/17930/v/600/depositphotos_179308454-stock-illustration-unknown-person-silhouette-glasses-profile.jpg">
-                    <span class="font-weight-bold">{{ user_name }}</span>
-                    <span class="text-black-50">{{ email }}</span>
-                    <span> </span>
+                    <!-- Profile Image -->
+                    <img id="profile-image" class="rounded-circle mt-5" width="150px" 
+                         src="{{ userdata[0][4] if userdata[0][4] else 'https://st3.depositphotos.com/15648834/17930/v/600/depositphotos_179308454-stock-illustration-unknown-person-silhouette-glasses-profile.jpg' }}">
+                    
+                    <!-- Upload Form -->
+                    <form method="POST" action="/upload-profile-image" enctype="multipart/form-data" class="mt-3">
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="profile_image" name="profile_image" accept="image/*">
+                            <label class="custom-file-label" for="profile_image">Choose file</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm mt-2">Upload</button>
+                    </form>
                 </div>
             </div>
             <div class="col-md-6 border-right">
@@ -100,6 +108,15 @@
 
         // Automatically check credit worthiness when the page loads
         window.onload = checkCreditWorthiness;
+    </script>
+
+    <script>
+        // Update file input label
+        document.getElementById('profile_image').addEventListener('change', function(e) {
+            var fileName = e.target.files[0].name;
+            var nextSibling = e.target.nextElementSibling;
+            nextSibling.innerText = fileName;
+        });
     </script>
 
     <!-- Optional JavaScript -->

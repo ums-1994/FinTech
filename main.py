@@ -17,12 +17,21 @@ from io import BytesIO
 from reportlab.lib.utils import ImageReader
 import tempfile
 import plotly.io as pio
+from werkzeug.utils import secure_filename
 
 warnings.filterwarnings("ignore")
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
+# Configure upload folder and allowed extensions
+UPLOAD_FOLDER = 'static/uploads/profile_images'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
 def login():
@@ -241,25 +250,81 @@ def analysis():
         if df.shape[0] > 0:
             # Generate visualizations with explanations
             # Expense Distribution (Pie Chart)
-            pie = support.meraPie(df=df, names='Expense', values='Amount(R)', hole=0.7, hole_text='Expense',
-                                  hole_font=20, height=400, width=400, margin=dict(t=1, b=1, l=1, r=1))
+            pie = px.pie(df, names='Expense', values='Amount(R)', 
+                         title='Expense Distribution',
+                         color_discrete_sequence=px.colors.qualitative.Pastel,
+                         hole=0.4,  # Add a hole for a donut chart
+                         labels={'Expense': 'Category', 'Amount(R)': 'Amount (R)'})
+            pie.update_traces(textposition='inside', textinfo='percent+label', 
+                             textfont=dict(size=14, color='#333333'))
+            pie.update_layout(
+                margin=dict(t=40, b=20, l=20, r=20),
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                legend=dict(
+                    font=dict(size=12, color='#555555'),
+                    orientation='h',
+                    yanchor='bottom',
+                    y=-0.2,
+                    xanchor='center',
+                    x=0.5
+                ),
+                title=dict(
+                    font=dict(size=18, color='#333333'),
+                    x=0.5,
+                    y=0.95
+                )
+            )
             pie_explanation = "This pie chart shows the distribution of your expenses across different categories."
 
             # Monthly Trends (Line Chart)
-            line = support.meraLine(df=df, x='Date', y='Amount(R)', color='Expense', 
-                                   slider=False, show_legend=True, height=400, title="Monthly Spending Trends")
+            line = px.line(df, x='Date', y='Amount(R)', color='Expense',
+                           title='Monthly Spending Trends',
+                           labels={'Date': 'Date', 'Amount(R)': 'Amount (R)'})
+            line.update_layout(
+                margin=dict(t=40, b=20, l=20, r=20),
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                legend=dict(
+                    font=dict(size=12, color='#555555'),
+                    orientation='h',
+                    yanchor='bottom',
+                    y=-0.2,
+                    xanchor='center',
+                    x=0.5
+                ),
+                title=dict(
+                    font=dict(size=18, color='#333333'),
+                    x=0.5,
+                    y=0.95
+                )
+            )
             line_explanation = "This line chart tracks your spending trends over time, showing how your expenses vary month by month."
 
             # Category Breakdown (Bar Chart)
-            bar = support.meraBarChart(df=df.groupby(['Note', "Expense"]).sum().reset_index(), 
-                                      x='Note', y='Amount(R)', color="Expense", height=400, 
-                                      x_label="Category", y_label="Amount (R)", show_xtick=True, title="Category Breakdown")
+            bar = px.bar(df.groupby(['Note', "Expense"]).sum().reset_index(), 
+                         x='Note', y='Amount(R)', color='Expense',
+                         title='Category Breakdown',
+                         labels={'Note': 'Category', 'Amount(R)': 'Amount (R)'})
+            bar.update_layout(
+                margin=dict(t=40, b=20, l=20, r=20),
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                legend=dict(
+                    font=dict(size=12, color='#555555'),
+                    orientation='h',
+                    yanchor='bottom',
+                    y=-0.2,
+                    xanchor='center',
+                    x=0.5
+                ),
+                title=dict(
+                    font=dict(size=18, color='#333333'),
+                    x=0.5,
+                    y=0.95
+                )
+            )
             bar_explanation = "This bar chart breaks down your expenses by subcategories, showing where your money is being spent."
-
-            # Spending Heatmap (Heatmap)
-            heat = support.meraHeatmap(df, 'Day_name', 'Month_name', height=400, 
-                                      title="Transaction count Day vs Month")
-            heat_explanation = "This heatmap shows your spending patterns by day and month, highlighting when you spend the most."
 
             # Calculate insights
             total_spent = df['Amount(R)'].sum()
@@ -269,14 +334,12 @@ def analysis():
 
             return render_template('analysis.html',
                                  user_name=userdata[0][1],
-                                 pie=json.dumps(pie),
-                                 bar=json.dumps(bar),
-                                 line=json.dumps(line),
-                                 heat=json.dumps(heat),
+                                 pie=json.dumps(pie, cls=plotly.utils.PlotlyJSONEncoder),
+                                 line=json.dumps(line, cls=plotly.utils.PlotlyJSONEncoder),
+                                 bar=json.dumps(bar, cls=plotly.utils.PlotlyJSONEncoder),
                                  pie_explanation=pie_explanation,
                                  line_explanation=line_explanation,
                                  bar_explanation=bar_explanation,
-                                 heat_explanation=heat_explanation,
                                  total_spent=total_spent,
                                  avg_monthly_spending=avg_monthly_spending,
                                  largest_expense=largest_expense,
@@ -507,6 +570,11 @@ def check_credit_worthiness():
         else:
             credit_rating = "Poor"
 
+        # Store credit data in the database
+        query = """INSERT INTO credit_worthiness (user_id, credit_score, credit_rating) 
+                   VALUES ({}, {}, '{}')""".format(session['user_id'], credit_score, credit_rating)
+        support.execute_query('insert', query)
+
         return jsonify({
             'credit_score': round(credit_score, 2),
             'credit_rating': credit_rating,
@@ -516,6 +584,44 @@ def check_credit_worthiness():
         })
     else:
         return jsonify({'error': 'No data records to analyze.'})
+
+
+@app.route('/upload-profile-image', methods=['POST'])
+def upload_profile_image():
+    if 'user_id' not in session:
+        return redirect('/')
+
+    # Check if the post request has the file part
+    if 'profile_image' not in request.files:
+        flash('No file selected')
+        return redirect('/profile')
+
+    file = request.files['profile_image']
+
+    # If user does not select file, browser submits an empty file
+    if file.filename == '':
+        flash('No file selected')
+        return redirect('/profile')
+
+    if file and allowed_file(file.filename):
+        # Create upload folder if it doesn't exist
+        if not os.path.exists(UPLOAD_FOLDER):
+            os.makedirs(UPLOAD_FOLDER)
+
+        # Save the file
+        filename = f"user_{session['user_id']}.{file.filename.rsplit('.', 1)[1].lower()}"
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+
+        # Update user profile with image path
+        query = """UPDATE user_login SET profile_image = '{}' WHERE user_id = {}""".format(filepath, session['user_id'])
+        support.execute_query('insert', query)
+
+        flash('Profile image updated successfully!')
+        return redirect('/profile')
+    else:
+        flash('Allowed file types are: png, jpg, jpeg, gif')
+        return redirect('/profile')
 
 
 if __name__ == "__main__":
