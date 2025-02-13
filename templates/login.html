@@ -13,7 +13,10 @@
     <title>BudgetBuddy - Login</title>
     <style>
       body {
-        background-color: #f8f9fa;
+        background-image: url("{{ url_for('static', filename='ada832fc-8c90-4912-9d45-c29120ad249c.webp') }}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
         height: 100vh;
         display: flex;
         align-items: center;
@@ -24,7 +27,7 @@
         max-width: 400px;
         width: 100%;
         padding: 2rem;
-        background: white;
+        background: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
         border-radius: 8px;
         box-shadow: 0 0 20px rgba(0,0,0,0.1);
       }
@@ -65,7 +68,7 @@
     </style>
   </head>
   <body>
-    <div class="login-container">
+    <div class="login-container" style="max-width: 300px; padding: 1.5rem;">
       <div class="login-header">
         <h2>Welcome to BudgetBuddy</h2>
       </div>
