@@ -332,101 +332,60 @@
                      </div>
                  </div>
              </div>
-             {% if df_size==0 %}
-         <div>
-             <h3>No records found, seems you are a new user</h3>
          </div>
-         {% else %}
-
-            <!--  bar chart-->
-             <div class="col-md-4 chart_border">
-                    <div id="bar" class="chart"></div>
-             </div>
-         </div>
-         <br>
-         <br>
-         <div class="row ">
-             <div class="col-md-7 chart_border">
-                 <div id="stack" class="chart m-1"></div>
-             </div>
-             <div class="col-md-5">
-                <div class="row m-1">
-                    <div class="col-sm-12">
-                        <div class="card card-body m-1 p-1 panel list">
-                            <h4 align="center">Monthly Record (R)</h4>
-                            <li>
-                                <h5 class="text-warning">Month</h5>
-                                <span>Income</span>
-                                <span>Spend</span>
-                                <span>Invest</span>
-                                <span>Saving</span>
-                            </li>
-
-                              {% for month in monthly_data %}
-                              <li>
-                                  <h6>{{ month['Month'] }}</h6>
-                                  <span>R {{ month['Earning'] }}</span>
-                                  <span>R {{ month['Spend'] }}</span>
-                                  <span>R {{ month['Investment'] }}</span>
-                                  <span>R {{ month['Saving'] }}</span>
-                              </li>
-                              {% endfor %}
-                          </div>
-                      </div>
-                  </div>
-              </div>
-         </div>
-
-         <br>
          <br>
 
          <div class="row">
-             <div class="sales">
-                 {% for data in card_data %}
-                 <div class="text-center">
-                    <h5 class="p-0 m-1">{{ data['head'] }}</h5>
-                    <h1>{{ data['main'] }}</h1>
-                    <small>{{ data['msg'] }}</small>
+             <div class="col-md-12">
+                 <div class="card mb-4">
+                     <div class="card-body">
+                         <h5 class="card-title">Monthly Records (R)</h5>
+                         <table class="table table-hover">
+                             <thead>
+                                 <tr>
+                                     <th>Month</th>
+                                     <th>Income</th>
+                                     <th>Spend</th>
+                                     <th>Invest</th>
+                                     <th>Saving</th>
+                                 </tr>
+                             </thead>
+                             <tbody>
+                                 <tr>
+                                     <td>July</td>
+                                     <td>R </td>
+                                     <td>R </td>
+                                     <td>R </td>
+                                     <td>R </td>
+                                 </tr>
+                                 <tr>
+                                     <td>February</td>
+                                     <td>R 45.85M</td>
+                                     <td>R 67.5K</td>
+                                     <td>R 20.0M</td>
+                                     <td>R </td>
+                                 </tr>
+                                 <tr>
+                                     <td>January</td>
+                                     <td>R </td>
+                                     <td>R </td>
+                                     <td>R </td>
+                                     <td>R 40.0M</td>
+                                 </tr>
+                             </tbody>
+                         </table>
+                     </div>
                  </div>
-                 {% endfor %}
              </div>
          </div>
-         <br>
-         <br>
 
          <div class="card mb-4">
              <div class="card-body">
                  <h5 class="card-title">Monthly Budget Progress</h5>
                  <div class="progress">
-                     <div class="progress-bar bg-success" role="progressbar" style="width: {{ budget_progress }}%" aria-valuenow="{{ budget_progress }}" aria-valuemin="0" aria-valuemax="100">{{ budget_progress }}%</div>
+                     <div class="progress-bar bg-success" role="progressbar" style="width: {{ budget_progress or 0 }}%" aria-valuenow="{{ budget_progress or 0 }}" aria-valuemin="0" aria-valuemax="100">{{ budget_progress or 0 }}%</div>
                  </div>
-                 <small class="text-muted">You've spent R{{ total_spent }} of your R{{ monthly_budget }} budget.</small>
-             </div>
-         </div>
-
-         <div class="card mb-4">
-             <div class="card-body">
-                 <h5 class="card-title">Recent Expenses</h5>
-                 <table class="table table-hover">
-                     <thead>
-                         <tr>
-                             <th>Date</th>
-                             <th>Category</th>
-                             <th>Amount</th>
-                             <th>Notes</th>
-                         </tr>
-                     </thead>
-                     <tbody>
-                         {% for expense in recent_expenses %}
-                         <tr>
-                             <td>{{ expense.date }}</td>
-                             <td>{{ expense.category }}</td>
-                             <td>R{{ expense.amount }}</td>
-                             <td>{{ expense.notes }}</td>
-                         </tr>
-                         {% endfor %}
-                     </tbody>
-                 </table>
+                 <small class="text-muted">You've spent R{{ total_spent or 0 }} of your R{{ monthly_budget or 0 }} budget.</small>
              </div>
          </div>
 
@@ -445,11 +404,9 @@
              <div class="card-body">
                  <h5 class="card-title">Savings Goal Tracker</h5>
                  <div class="progress">
-                     <div class="progress-bar bg-info" role="progressbar" style="width: {{ savings_progress or 0 }}%;" aria-valuenow="{{ savings_progress or 0 }}" aria-valuemin="0" aria-valuemax="100">
-                         {{ savings_progress or 0 }}%
-                     </div>
+                     <div class="progress-bar bg-info" role="progressbar" style="width: {{ savings_progress or 0 }}%" aria-valuenow="{{ savings_progress or 0 }}" aria-valuemin="0" aria-valuemax="100">{{ savings_progress or 0 }}%</div>
                  </div>
-                 <small class="text-muted">You've saved R{{ current_savings }} of your R{{ savings_goal }} goal.</small>
+                 <small class="text-muted">You've saved R{{ current_savings or 0 }} of your R{{ savings_goal or 0 }} goal.</small>
              </div>
          </div>
 
@@ -460,6 +417,21 @@
              </div>
          </div>
 
+         </div>
+
+         {% if df_size==0 %}
+         <div>
+             <h3>No records found, seems you are a new user</h3>
+         </div>
+         {% else %}
+
+            <!--  bar chart-->
+             <div class="col-md-4 chart_border">
+                    <div id="bar" class="chart"></div>
+             </div>
+         </div>
+         <br>
+         <br>
          </div>
 
          {% endif %}

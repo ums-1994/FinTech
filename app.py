@@ -1,4 +1,4 @@
-from openai import OpenAI
+from openai import OpenAI # type: ignore
 import os
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, render_template
@@ -60,11 +60,13 @@ def home():
     # Filter expenses based on query parameters
     expenses = filter_expenses(search_query, category, start_date, end_date)
     savings_progress = 75  # Replace with your logic
-    return render_template('home.html', expenses=expenses, savings_progress=savings_progress)
+    current_savings = 500  # Replace with your logic
+    savings_goal = 1000    # Replace with your logic
+    return render_template('home.html', expenses=expenses, savings_progress=savings_progress, current_savings=current_savings, savings_goal=savings_goal)
 
 def filter_expenses(search_query, category, start_date, end_date):
-    # Assuming 'expenses' is a list of dictionaries with keys like 'description', 'category', 'date'
-    filtered = expenses  # Replace 'expenses' with your actual data source
+    expenses = []  # Replace with your actual data source (e.g., database query)
+    filtered = expenses
     if search_query:
         filtered = [e for e in filtered if search_query.lower() in e['description'].lower()]
     if category:
