@@ -11,18 +11,78 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
         <title>BudgetBuddy - Analysis</title>
+
+        <style>
+            .profile-container {
+                max-width: 800px;
+                margin: 50px auto;
+                padding: 20px;
+                background: #FFFFFF;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            .profile-header {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+            .profile-header h2 {
+                color: #34495E;
+            }
+            .profile-picture {
+                width: 150px;
+                height: 150px;
+                border-radius: 50%;
+                margin-bottom: 20px;
+            }
+            .form-group label {
+                font-weight: 500;
+            }
+            .btn-primary {
+                background-color: #1ABC9C;
+                border: none;
+                transition: background-color 0.3s ease;
+            }
+            .btn-primary:hover {
+                background-color: #16A085;
+            }
+            .activity-summary {
+                margin-top: 30px;
+            }
+            .activity-summary h3 {
+                color: #34495E;
+                margin-bottom: 20px;
+            }
+            .activity-summary .stat-card {
+                background: #F4F6F8;
+                border-radius: 8px;
+                padding: 20px;
+                text-align: center;
+                margin: 10px;
+            }
+            .activity-summary .stat-card h4 {
+                color: #34495E;
+                margin-bottom: 10px;
+            }
+            .activity-summary .stat-card p {
+                font-size: 1.5rem;
+                color: #1ABC9C;
+                font-weight: bold;
+            }
+        </style>
     </head>
     <body>
-     <div class="bg-nav d-flex flex-column flex-md-row align-items-center pb-0 mb-0 border-bottom">
-      <h5 class="m-3 mr-md-auto font-weight-normal"><a href="/" style="text-decoration : none">BudgetBuddy - {{ user_name }}</a></h5>
+     <div class="bg-nav d-flex flex-column flex-md-row align-items-center pb-0 mb-0 border-bottom" style="background-color: #34495E;">
+      <h5 class="m-3 mr-md-auto font-weight-normal">
+        <a href="/" style="text-decoration: none; color: #ECF0F1; font-weight: 500; font-size: 1.25rem;">BudgetBuddy - Thabs</a>
+      </h5>
 
-      <nav class="m-2 my-md-0 mr-md-3">
-        <a class="py-2 m-2 text-dark" href="/home">Home</a>
-        <a class="py-2 m-2 text-dark" href="/analysis">Analysis</a>
-        <a class="py-2 m-2 text-dark" href="/profile">Profile</a>
-        <a class="py-2 m-2 text-dark" href="/contact">Contact Us</a>
+      <nav class="m-2 my-md-0 mr-md-3 d-flex align-items-center">
+        <a class="py-2 m-2 nav-link" href="/home" style="color: #ECF0F1; transition: color 0.3s ease;" onmouseover="this.style.color='#1ABC9C'" onmouseout="this.style.color='#ECF0F1'">Home</a>
+        <a class="py-2 m-2 nav-link" href="/analysis" style="color: #ECF0F1; transition: color 0.3s ease;" onmouseover="this.style.color='#1ABC9C'" onmouseout="this.style.color='#ECF0F1'">Analysis</a>
+        <a class="py-2 m-2 nav-link" href="/profile" style="color: #ECF0F1; transition: color 0.3s ease;" onmouseover="this.style.color='#1ABC9C'" onmouseout="this.style.color='#ECF0F1'">Profile</a>
+        <a class="py-2 m-2 nav-link" href="/contact" style="color: #ECF0F1; transition: color 0.3s ease;" onmouseover="this.style.color='#1ABC9C'" onmouseout="this.style.color='#ECF0F1'">Contact Us</a>
       </nav>
-         <a class="btn m-2 btn-outline-warning" href="/logout">Logout</a>
+         <a class="btn m-2 btn-outline-light" href="/logout" style="transition: background-color 0.3s ease, color 0.3s ease;" onmouseover="this.style.backgroundColor='#1ABC9C'; this.style.color='#FFFFFF'" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#ECF0F1'">Logout</a>
     </div>
      {% for message in get_flashed_messages() %}
          <div class="alert alert-warning alert-dismissible fade show my-1" id="alert" role="alert">
@@ -33,48 +93,61 @@
         </div>
          {% endfor %}
 
-     <div class="container rounded bg-white mt-5 mb-5">
-        <div class="row">
-            <div class="col-md-3 border-right">
-                <div class="d-flex flex-column align-items-center text-center p-3 py-3">
-                    <!-- Profile Image -->
-                    <img id="profile-image" class="rounded-circle mt-5" width="150px" 
-                         src="{{ userdata[0][4] if userdata[0][4] else 'https://st3.depositphotos.com/15648834/17930/v/600/depositphotos_179308454-stock-illustration-unknown-person-silhouette-glasses-profile.jpg' }}">
-                    
-                    <!-- Upload Form -->
-                    <form method="POST" action="/upload-profile-image" enctype="multipart/form-data" class="mt-3">
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="profile_image" name="profile_image" accept="image/*">
-                            <label class="custom-file-label" for="profile_image">Choose file</label>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-sm mt-2">Upload</button>
-                    </form>
-                </div>
+     <div class="profile-container">
+        <div class="profile-header">
+            <img src="{{ url_for('static', filename='profile_pictures/' + user.profile_picture) }}" alt="Profile Picture" class="profile-picture">
+            <h2>{{ user.name }}</h2>
+        </div>
+
+        <!-- Edit Profile Form -->
+        <form method="POST" action="/edit-profile" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ user.name }}" required>
             </div>
-            <div class="col-md-6 border-right">
-                <div class="p-3 p-2">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="text-right">Profile Settings</h4>
-                    </div>
-                    <div class="row mt-3">
-                        <form class="form" method="post" action="/updateprofile">
-                            <label>Full Name</label><br>
-                            <input type="text" class="form-control" name="name" value="{{ user_name }}" required><br>
-                            <label>Email</label><br>
-                            <input type="email" class="form-control" name="email" value="{{ email }}" required><br><br>
-                            <input type="submit" class="form-control btn btn-primary btn-block btn-lg" value="Save">
-                        </form>
-                    </div>
-                </div>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
             </div>
-            <div class="col-md-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h4>Credit Worthiness</h4>
-                        <p><strong>Credit Score:</strong> <span id="credit-score">Loading...</span></p>
-                        <p><strong>Credit Rating:</strong> <span id="credit-rating">Loading...</span></p>
-                        <button class="btn btn-primary" onclick="checkCreditWorthiness()">Check Credit Worthiness</button>
-                    </div>
+            <div class="form-group">
+                <label for="profilePicture">Profile Picture</label>
+                <input type="file" class="form-control" id="profilePicture" name="profile_picture">
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+
+        <!-- Change Password Form -->
+        <form method="POST" action="/change-password" class="mt-4">
+            <div class="form-group">
+                <label for="currentPassword">Current Password</label>
+                <input type="password" class="form-control" id="currentPassword" name="current_password" required>
+            </div>
+            <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <input type="password" class="form-control" id="newPassword" name="new_password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm New Password</label>
+                <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Change Password</button>
+        </form>
+
+        <!-- Activity Summary -->
+        <div class="activity-summary">
+            <h3>Activity Summary</h3>
+            <div class="d-flex justify-content-between">
+                <div class="stat-card">
+                    <h4>Total Income</h4>
+                    <p>R {{ total_income }}</p>
+                </div>
+                <div class="stat-card">
+                    <h4>Total Expenses</h4>
+                    <p>R {{ total_expenses }}</p>
+                </div>
+                <div class="stat-card">
+                    <h4>Savings</h4>
+                    <p>R {{ total_savings }}</p>
                 </div>
             </div>
         </div>

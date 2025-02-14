@@ -1,15 +1,49 @@
 from openai import OpenAI # type: ignore
 import os
 from dotenv import load_dotenv
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
 import openai  # type: ignore # Example: Using OpenAI for NLP
+from flask_sqlalchemy import SQLAlchemy # type: ignore
 
 load_dotenv()  # Load environment variables
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///budgetbuddy.db'
+db = SQLAlchemy(app)
 
-# ... existing Flask setup ...
+# User Model
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(120), nullable=False)
+    notifications = db.Column(db.String(50), default='Enable all notifications')
+
+# Models
+class Income(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    amount = db.Column(db.Float, nullable=False)
+    description = db.Column(db.String(200), nullable=False)
+    date = db.Column(db.String(10), nullable=False)
+
+class Expense(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    amount = db.Column(db.Float, nullable=False)
+    description = db.Column(db.String(200), nullable=False)
+    category = db.Column(db.String(50), nullable=False)
+    date = db.Column(db.String(10), nullable=False)
+
+class Budget(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    amount = db.Column(db.Float, nullable=False)
+    category = db.Column(db.String(50), nullable=False)
+    date = db.Column(db.String(10), nullable=False)
+
+# Create Database
+with app.app_context():
+    db.create_all()
 
 def get_ai_response(user_input):
     try:
@@ -50,19 +84,21 @@ def chatbot():
     
     return jsonify({"reply": response.choices[0].text.strip()})
 
-@app.route('/home')
+@app.route('/')
 def home():
-    search_query = request.args.get('search', '')
-    category = request.args.get('category', '')
-    start_date = request.args.get('start_date', '')
-    end_date = request.args.get('end_date', '')
+    incomes = Income.query.all()
+    expenses = Expense.query.all()
+    budgets = Budget.query.all()
 
-    # Filter expenses based on query parameters
-    expenses = filter_expenses(search_query, category, start_date, end_date)
-    savings_progress = 75  # Replace with your logic
-    current_savings = 500  # Replace with your logic
-    savings_goal = 1000    # Replace with your logic
-    return render_template('home.html', expenses=expenses, savings_progress=savings_progress, current_savings=current_savings, savings_goal=savings_goal)
+    # Prepare data for charts
+    income_dates = [income.date for income in incomes]
+    income_amounts = [income.amount for income in incomes]
+    expense_dates = [expense.date for expense in expenses]
+    expense_amounts = [expense.amount for expense in expenses]
+
+    return render_template('home.html', incomes=incomes, expenses=expenses, budgets=budgets,
+                           income_dates=income_dates, income_amounts=income_amounts,
+                           expense_dates=expense_dates, expense_amounts=expense_amounts)
 
 def filter_expenses(search_query, category, start_date, end_date):
     expenses = []  # Replace with your actual data source (e.g., database query)
@@ -76,6 +112,67 @@ def filter_expenses(search_query, category, start_date, end_date):
     if end_date:
         filtered = [e for e in filtered if e['date'] <= end_date]
     return filtered
+
+# Settings Route
+@app.route('/settings', methods=['GET', 'POST'])
+def settings():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        notifications = request.form.get('notifications')
+
+        # Update user settings (example: fetch user from session or database)
+        user = User.query.filter_by(username='current_user').first()
+        if user:
+            user.username = username
+            user.email = email
+            user.password = password
+            user.notifications = notifications
+            db.session.commit()
+            flash('Settings updated successfully!', 'success')
+        else:
+            flash('User not found!', 'error')
+
+        return redirect(url_for('home'))
+
+    return render_template('home.html')
+
+# Help Route
+@app.route('/help', methods=['GET', 'POST'])
+def help():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        message = request.form.get('message')
+
+        # Save the help request (example: store in database or send email)
+        flash('Your message has been sent! We will get back to you soon.', 'success')
+        return redirect(url_for('home'))
+
+    return render_template('home.html')
+
+# Add Record Route
+@app.route('/add-record', methods=['POST'])
+def add_record():
+    if request.method == 'POST':
+        record_type = request.form.get('record_type')
+        amount = float(request.form.get('amount'))
+        description = request.form.get('description')
+        category = request.form.get('category')
+        date = request.form.get('date')
+
+        if record_type == 'Income':
+            new_record = Income(amount=amount, description=description, date=date)
+        elif record_type == 'Expense':
+            new_record = Expense(amount=amount, description=description, category=category, date=date)
+        elif record_type == 'Budget':
+            new_record = Budget(amount=amount, category=category, date=date)
+
+        db.session.add(new_record)
+        db.session.commit()
+        flash(f'{record_type} added successfully!', 'success')
+        return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run(debug=True) 

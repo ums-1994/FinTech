@@ -19,12 +19,12 @@
             :root {
                 --primary-color: #607D8B; /* Blue Gray */
                 --secondary-color: #90A4AE; /* Light Blue Gray */
-                --accent-color: #FF6D00; /* Vibrant Orange (kept for contrast) */
-                --background-color: #FFFFFF; /* White */
+                --accent-color: #b32594; 
+                --background-color: #67afab; /* White */
                 --text-color: #263238; /* Dark Blue Gray */
                 --card-bg: #F5F5F5; /* Light Gray */
                 --success-color: #4CAF50; /* Green */
-                --warning-color: #FFC107; /* Amber */
+                --warning-color: #8418a58e; /* Amber */
             }
 
             body {
@@ -86,19 +86,93 @@
                 background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
                 color: white;
             }
+
+            .settings-section, .help-section {
+                margin-top: 30px;
+                padding: 20px;
+                background: #FFFFFF;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            .settings-section h3, .help-section h3 {
+                color: #34495E;
+                margin-bottom: 20px;
+            }
+            .btn-primary {
+                background-color: #1ABC9C;
+                border: none;
+                transition: background-color 0.3s ease;
+            }
+            .btn-primary:hover {
+                background-color: #16A085;
+            }
+            .quick-stats {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 30px;
+            }
+            .stat-card {
+                background: #FFFFFF;
+                border-radius: 8px;
+                padding: 20px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                text-align: center;
+                flex: 1;
+                margin: 0 10px;
+            }
+            .stat-card h4 {
+                color: #34495E;
+                margin-bottom: 10px;
+            }
+            .stat-card p {
+                font-size: 1.5rem;
+                color: #1ABC9C;
+                font-weight: bold;
+            }
+            .recent-transactions {
+                margin-bottom: 30px;
+            }
+            .budget-tracker {
+                margin-bottom: 30px;
+            }
+            .progress {
+                height: 20px;
+                border-radius: 10px;
+            }
+            .quick-actions {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 30px;
+            }
+            .quick-actions .btn {
+                flex: 1;
+                margin: 0 10px;
+            }
+            .notifications {
+                margin-bottom: 30px;
+            }
+            .notification-item {
+                background: #FFFFFF;
+                border-radius: 8px;
+                padding: 15px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                margin-bottom: 10px;
+            }
         </style>
     </head>
     <body class="page-bg">
-     <div class="bg-nav d-flex flex-column flex-md-row align-items-center pb-0 mb-0 border-bottom">
-      <h5 class="m-3 mr-md-auto font-weight-normal"><a href="/" style="text-decoration : none">BudgetBuddy - {{ user_name }}</a></h5>
+     <div class="bg-nav d-flex flex-column flex-md-row align-items-center pb-0 mb-0 border-bottom" style="background-color: #34495E;">
+      <h5 class="m-3 mr-md-auto font-weight-normal">
+        <a href="/" style="text-decoration: none; color: #ECF0F1; font-weight: 500; font-size: 1.25rem;">BudgetBuddy - Thabs</a>
+      </h5>
 
-      <nav class="m-2 my-md-0 mr-md-3">
-        <a class="py-2 m-2 text-dark" href="/home">Home</a>
-        <a class="py-2 m-2 text-dark" href="/analysis">Analysis</a>
-        <a class="py-2 m-2 text-dark" href="/profile">Profile</a>
-        <a class="py-2 m-2 text-dark" href="/contact">Contact Us</a>
+      <nav class="m-2 my-md-0 mr-md-3 d-flex align-items-center">
+        <a class="py-2 m-2 nav-link" href="/home" style="color: #ECF0F1; transition: color 0.3s ease;" onmouseover="this.style.color='#1ABC9C'" onmouseout="this.style.color='#ECF0F1'">Home</a>
+        <a class="py-2 m-2 nav-link" href="/analysis" style="color: #ECF0F1; transition: color 0.3s ease;" onmouseover="this.style.color='#1ABC9C'" onmouseout="this.style.color='#ECF0F1'">Analysis</a>
+        <a class="py-2 m-2 nav-link" href="/profile" style="color: #ECF0F1; transition: color 0.3s ease;" onmouseover="this.style.color='#1ABC9C'" onmouseout="this.style.color='#ECF0F1'">Profile</a>
+        <a class="py-2 m-2 nav-link" href="/contact" style="color: #ECF0F1; transition: color 0.3s ease;" onmouseover="this.style.color='#1ABC9C'" onmouseout="this.style.color='#ECF0F1'">Contact Us</a>
       </nav>
-         <a class="btn m-2 btn-outline-warning" href="/logout">Logout</a>
+         <a class="btn m-2 btn-outline-light" href="/logout" style="transition: background-color 0.3s ease, color 0.3s ease;" onmouseover="this.style.backgroundColor='#1ABC9C'; this.style.color='#FFFFFF'" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#ECF0F1'">Logout</a>
     </div>
      <div>
         {% for message in get_flashed_messages() %}
@@ -113,42 +187,77 @@
 
      <!-- Main container-->
      <div class="container ">
-        <!-- Tiles row-->
-         <div class="row my-2">
-             <div class="col-md-3">
-                 <div class="card gradient-bg">
-                     <div class="card-body">
-                         <h5 class="text-center">Total Earnings</h5>
-                         <h2 class="text-center">R {{ earning }}</h2>
-                     </div>
-                 </div>
-             </div>
-             <div class="col-md-3">
-                 <div class="card" style="background-color: var(--secondary-color); color: white;">
-                     <div class="card-body">
-                         <h5 class="text-center">Total Spends</h5>
-                         <h2 class="text-center">R {{ spend }}</h2>
-                     </div>
-                 </div>
-             </div>
-             <div class="col-md-3">
-                 <div class="card" style="background-color: var(--accent-color); color: white;">
-                     <div class="card-body">
-                         <h5 class="text-center">Total Investments</h5>
-                         <h2 class="text-center">R {{ invest }}</h2>
-                     </div>
-                 </div>
-             </div>
-             <div class="col-md-3">
-                 <div class="card" style="background-color: var(--primary-color); color: white;">
-                     <div class="card-body">
-                         <h5 class="text-center">Total Savings</h5>
-                         <h2 class="text-center">R {{ saving }}</h2>
-                     </div>
-                 </div>
-             </div>
-         </div>
-         <br>
+        <!-- Quick Stats Dashboard -->
+        <div class="quick-stats">
+            <div class="stat-card">
+                <h4>Total Income</h4>
+                <p>R {{ earning }}</p>
+            </div>
+            <div class="stat-card">
+                <h4>Total Expenses</h4>
+                <p>R {{ spend }}</p>
+            </div>
+            <div class="stat-card">
+                <h4>Savings</h4>
+                <p>R {{ saving }}</p>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="recent-transactions">
+            <h3>Recent Transactions</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Category</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2023-10-01</td>
+                        <td>Groceries</td>
+                        <td>R 500</td>
+                        <td>Spend</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-02</td>
+                        <td>Salary</td>
+                        <td>R 10,000</td>
+                        <td>Income</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-03</td>
+                        <td>Electricity Bill</td>
+                        <td>R 1,200</td>
+                        <td>Spend</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Budget Progress Tracker -->
+        <div class="budget-tracker">
+            <h3>Budget Progress</h3>
+            <div class="progress">
+                <div class="progress-bar bg-success" role="progressbar" style="width: 0%; transition: width 1s ease;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="notifications">
+            <h3>Notifications</h3>
+            <div class="notification-item">
+                <p>Your electricity bill is due in 3 days.</p>
+            </div>
+            <div class="notification-item">
+                <p>You've reached 75% of your monthly budget.</p>
+            </div>
+        </div>
+
+        <br>
 
 
 <!--         Table records-->
@@ -168,118 +277,117 @@
                                 <a class="dropdown-item" href="/export/pdf">Export as PDF</a>
                             </div>
                         </div>
+                        <!-- Add New Record Button -->
+                        <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#addRecordModal">
+                            <i class="fas fa-plus"></i> Add New Record
+                        </button>
                      </div>
                  </div>
-                 <div class="row">
-                     <div class="col-md-12">
-                         <div class="row mb-4">
-                             <div class="col-md-4">
-                                 <input type="text" class="form-control" placeholder="Search by description..." id="searchInput">
-                             </div>
-                             <div class="col-md-3">
-                                 <select class="form-control" id="categoryFilter">
-                                     <option value="">All Categories</option>
-                                     <option value="Food">Food</option>
-                                     <option value="Transport">Transport</option>
-                                     <option value="Groceries">Groceries</option>
-                                     <option value="Medical">Medical</option>
-                                     <option value="Others">Others</option>
-                                 </select>
-                             </div>
-                             <div class="col-md-2">
-                                 <input type="date" class="form-control" id="startDateFilter" placeholder="Start Date">
-                             </div>
-                             <div class="col-md-2">
-                                 <input type="date" class="form-control" id="endDateFilter" placeholder="End Date">
-                             </div>
-                             <div class="col-md-1">
-                                 <button class="btn btn-primary w-100" onclick="applyFilters()">Search</button>
-                             </div>
-                             <div class="col-md-2">
-                                 <button class="btn btn-secondary w-100" onclick="clearFilters()">Clear Filters</button>
-                             </div>
-                         </div>
-                         <table class="table table-dark">
-                          <thead>
-                            <tr>
-                              <th scope="col">#</th>
-                              <th scope="col">Date</th>
-                              <th scope="col">Expense</th>
-                              <th scope="col">Amount</th>
-                              <th scope="col">Note</th>
-                              <th scope="col">Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                          {% for expense in table_data %}
-                            <tr>
-                              <th scope="row">{{ loop.index }}</th>
-                              <td>{{ expense[2] }}</td>
-                              <td>{{ expense[3] }}</td>
-                              <td>R {{ expense[4] }}</td>
-                              <td>{{ expense[5] }}</td>
-                              <td>
-                                  <div class="btn-group">
-                                      <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editModal{{ expense[0] }}">
-                                          <i class="fas fa-edit"></i> Edit
-                                      </button>
-                                      <form action="{{ url_for('delete_expense', expense_id=expense[0]) }}" method="POST" 
-                                            onsubmit="return confirm('Are you sure you want to delete this expense?');">
-                                          <button type="submit" class="btn btn-danger btn-sm">
-                                              <i class="fas fa-trash"></i> Delete
+                 <div class="row mb-3">
+                     <div class="col-md-3">
+                         <input type="text" id="searchInput" class="form-control" placeholder="Search by category or description...">
+                     </div>
+                     <div class="col-md-2">
+                         <select id="categoryFilter" class="form-control">
+                             <option value="">All Categories</option>
+                             <option value="Income">Income</option>
+                             <option value="Spend">Spend</option>
+                             <option value="Invest">Invest</option>
+                             <option value="Saving">Saving</option>
+                         </select>
+                     </div>
+                     <div class="col-md-2">
+                         <input type="date" id="startDateFilter" class="form-control">
+                     </div>
+                     <div class="col-md-2">
+                         <input type="date" id="endDateFilter" class="form-control">
+                     </div>
+                     <div class="col-md-1">
+                         <button class="btn btn-primary w-100" onclick="applyFilters()">Search</button>
+                     </div>
+                     <div class="col-md-1">
+                         <button class="btn btn-secondary w-100" onclick="clearFilters()">Clear</button>
+                     </div>
+                 </div>
+                 <table class="table table-dark" id="expenseTable">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Date</th>
+                      <th scope="col">Expense</th>
+                      <th scope="col">Amount</th>
+                      <th scope="col">Note</th>
+                      <th scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for expense in table_data %}
+                    <tr>
+                      <th scope="row">{{ loop.index }}</th>
+                      <td>{{ expense[2] }}</td>
+                      <td>{{ expense[3] }}</td>
+                      <td>R {{ expense[4] }}</td>
+                      <td>{{ expense[5] }}</td>
+                      <td>
+                          <div class="btn-group">
+                              <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editModal{{ expense[0] }}">
+                                  <i class="fas fa-edit"></i> Edit
+                              </button>
+                              <form action="{{ url_for('delete_expense', expense_id=expense[0]) }}" method="POST" 
+                                    onsubmit="return confirm('Are you sure you want to delete this expense?');">
+                                  <button type="submit" class="btn btn-danger btn-sm">
+                                      <i class="fas fa-trash"></i> Delete
+                                  </button>
+                              </form>
+                          </div>
+                          
+                          <!-- Edit Modal -->
+                          <div class="modal fade" id="editModal{{ expense[0] }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+                              <div class="modal-dialog" role="document">
+                                  <div class="modal-content">
+                                      <div class="modal-header">
+                                          <h5 class="modal-title" id="editModalLabel">Edit Expense</h5>
+                                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                              <span aria-hidden="true">&times;</span>
                                           </button>
-                                      </form>
-                                  </div>
-                                  
-                                  <!-- Edit Modal -->
-                                  <div class="modal fade" id="editModal{{ expense[0] }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
-                                      <div class="modal-dialog" role="document">
-                                          <div class="modal-content">
-                                              <div class="modal-header">
-                                                  <h5 class="modal-title" id="editModalLabel">Edit Expense</h5>
-                                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                      <span aria-hidden="true">&times;</span>
-                                                  </button>
+                                      </div>
+                                      <div class="modal-body">
+                                          <form method="POST" action="{{ url_for('edit_expense', expense_id=expense[0]) }}">
+                                              <div class="form-group">
+                                                  <label for="e_date">Date</label>
+                                                  <input type="date" class="form-control" id="e_date" name="e_date" value="{{ expense[2] }}" required>
                                               </div>
-                                              <div class="modal-body">
-                                                  <form method="POST" action="{{ url_for('edit_expense', expense_id=expense[0]) }}">
-                                                      <div class="form-group">
-                                                          <label for="e_date">Date</label>
-                                                          <input type="date" class="form-control" id="e_date" name="e_date" value="{{ expense[2] }}" required>
-                                                      </div>
-                                                      <div class="form-group">
-                                                          <label for="e_type">Expense Type</label>
-                                                          <select class="form-control" id="e_type" name="e_type" required>
-                                                              <option value="Earning" {% if expense[3] == 'Earning' %}selected{% endif %}>Earning</option>
-                                                              <option value="Spend" {% if expense[3] == 'Spend' %}selected{% endif %}>Spend</option>
-                                                              <option value="Investment" {% if expense[3] == 'Investment' %}selected{% endif %}>Investment</option>
-                                                              <option value="Saving" {% if expense[3] == 'Saving' %}selected{% endif %}>Saving</option>
-                                                          </select>
-                                                      </div>
-                                                      <div class="form-group">
-                                                          <label for="amount">Amount</label>
-                                                          <input type="number" class="form-control" id="amount" name="amount" value="{{ expense[4] }}" required>
-                                                      </div>
-                                                      <div class="form-group">
-                                                          <label for="notes">Notes</label>
-                                                          <input type="text" class="form-control" id="notes" name="notes" value="{{ expense[5] }}">
-                                                      </div>
-                                                      <div class="modal-footer">
-                                                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                          <button type="submit" class="btn btn-primary">Save changes</button>
-                                                      </div>
-                                                  </form>
+                                              <div class="form-group">
+                                                  <label for="e_type">Expense Type</label>
+                                                  <select class="form-control" id="e_type" name="e_type" required>
+                                                      <option value="Earning" {% if expense[3] == 'Earning' %}selected{% endif %}>Earning</option>
+                                                      <option value="Spend" {% if expense[3] == 'Spend' %}selected{% endif %}>Spend</option>
+                                                      <option value="Investment" {% if expense[3] == 'Investment' %}selected{% endif %}>Investment</option>
+                                                      <option value="Saving" {% if expense[3] == 'Saving' %}selected{% endif %}>Saving</option>
+                                                  </select>
                                               </div>
-                                          </div>
+                                              <div class="form-group">
+                                                  <label for="amount">Amount</label>
+                                                  <input type="number" class="form-control" id="amount" name="amount" value="{{ expense[4] }}" required>
+                                              </div>
+                                              <div class="form-group">
+                                                  <label for="notes">Notes</label>
+                                                  <input type="text" class="form-control" id="notes" name="notes" value="{{ expense[5] }}">
+                                              </div>
+                                              <div class="modal-footer">
+                                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                  <button type="submit" class="btn btn-primary">Save changes</button>
+                                              </div>
+                                          </form>
                                       </div>
                                   </div>
-                              </td>
-                            </tr>
-                          {% endfor %}
-                          </tbody>
-                         </table>
-                     </div>
-                 </div>
+                              </div>
+                          </div>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                 </table>
              </div>
          </div>
          <br>
@@ -325,27 +433,6 @@
                          </table>
                      </div>
                  </div>
-             </div>
-         </div>
-
-         <div class="card mb-4">
-             <div class="card-body">
-                 <h5 class="card-title">Monthly Budget Progress</h5>
-                 <div class="progress">
-                     <div class="progress-bar bg-success" role="progressbar" style="width: {{ budget_progress or 0 }}%" aria-valuenow="{{ budget_progress or 0 }}" aria-valuemin="0" aria-valuemax="100">{{ budget_progress or 0 }}%</div>
-                 </div>
-                 <small class="text-muted">You've spent R{{ total_spent or 0 }} of your R{{ monthly_budget or 0 }} budget.</small>
-             </div>
-         </div>
-
-         <div class="card mb-4">
-             <div class="card-body">
-                 <h5 class="card-title">Notifications</h5>
-                 <ul class="list-group">
-                     <li class="list-group-item">You're close to exceeding your monthly budget.</li>
-                     <li class="list-group-item">You spent R500 on Food yesterday.</li>
-                     <li class="list-group-item">Your savings goal is 80% complete.</li>
-                 </ul>
              </div>
          </div>
 
@@ -484,22 +571,45 @@
         <label class="form-check-label" for="darkModeToggle">Dark Mode</label>
     </div>
 
-    <!-- Add this script to define clearFilters() -->
+    <!-- JavaScript for Search and Filter Functionality -->
     <script>
+        function applyFilters() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const startDate = document.getElementById('startDateFilter').value;
+            const endDate = document.getElementById('endDateFilter').value;
+
+            const rows = document.querySelectorAll('#expenseTable tbody tr');
+
+            rows.forEach(row => {
+                const dateCell = row.cells[1].textContent;
+                const categoryCell = row.cells[2].textContent.toLowerCase();
+                const descriptionCell = row.cells[4].textContent.toLowerCase();
+
+                const matchesSearch = categoryCell.includes(searchText) || descriptionCell.includes(searchText);
+                const matchesCategory = category === '' || categoryCell === category.toLowerCase();
+                const matchesDate = (!startDate || dateCell >= startDate) && (!endDate || dateCell <= endDate);
+
+                if (matchesSearch && matchesCategory && matchesDate) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
         function clearFilters() {
-            // Clear search input
             document.getElementById('searchInput').value = '';
-
-            // Reset category filter
             document.getElementById('categoryFilter').selectedIndex = 0;
-
-            // Clear date filters
             document.getElementById('startDateFilter').value = '';
             document.getElementById('endDateFilter').value = '';
-
-            // Optionally, reapply filters or refresh the table
-            applyFilters(); // If you have a function to refresh the table
+            applyFilters(); // Reapply filters to reset the table
         }
+
+        // Initialize filters on page load
+        window.onload = function() {
+            applyFilters();
+        };
     </script>
 
     <!-- Chatbot Container -->
@@ -601,5 +711,201 @@
                 }
             });
         };
+    </script>
+
+    <!-- JavaScript to Update Progress Bar -->
+    <script>
+        // Example: Update progress bar to 75% after 1 second
+        setTimeout(() => {
+            const progressBar = document.querySelector('.progress-bar');
+            progressBar.style.width = '75%';
+            progressBar.setAttribute('aria-valuenow', '75');
+            progressBar.textContent = '75%';
+        }, 1000);
+    </script>
+
+    <!-- Add New Record Modal -->
+    <div class="modal fade" id="addRecordModal" tabindex="-1" aria-labelledby="addRecordModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addRecordModalLabel">Add New Record</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="addRecordForm" method="POST" onsubmit="return false;">
+                        <div class="form-group">
+                            <label for="recordType">Record Type</label>
+                            <select class="form-control" id="recordType" name="record_type" required onchange="updateCategories()">
+                                <option value="Income">Income</option>
+                                <option value="Expense">Expense</option>
+                                <option value="Budget">Budget</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="recordAmount">Amount</label>
+                            <input type="number" class="form-control" id="recordAmount" name="amount" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="recordDescription">Description</label>
+                            <input type="text" class="form-control" id="recordDescription" name="description">
+                        </div>
+                        <div class="form-group">
+                            <label for="recordCategory">Category</label>
+                            <select class="form-control" id="recordCategory" name="category">
+                                <option value="Spend">Spend</option>
+                                <option value="Invest">Invest</option>
+                                <option value="Saving">Saving</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="recordDate">Date</label>
+                            <input type="date" class="form-control" id="recordDate" name="date" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" onclick="addRecord()">Add Record</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for AJAX and Dynamic Table Update -->
+    <script>
+        // Add Record Function
+        function addRecord() {
+            const recordType = document.getElementById('recordType').value;
+            const amount = document.getElementById('recordAmount').value;
+            const description = document.getElementById('recordDescription').value;
+            const category = document.getElementById('recordCategory').value;
+            const date = document.getElementById('recordDate').value;
+
+            // Validate form
+            if (!amount || !date) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            // Send AJAX request
+            fetch('/add-record', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    record_type: recordType,
+                    amount: amount,
+                    description: description,
+                    category: category,
+                    date: date,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close modal
+                    $('#addRecordModal').modal('hide');
+
+                    // Reset form
+                    document.getElementById('addRecordForm').reset();
+
+                    // Add new row to the table
+                    const tableBody = document.querySelector('#expenseTable tbody');
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <th scope="row">${tableBody.children.length + 1}</th>
+                        <td>${date}</td>
+                        <td>${recordType}</td>
+                        <td>R ${amount}</td>
+                        <td>${description || '-'}</td>
+                        <td>${category || '-'}</td>
+                        <td>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editModal">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <form action="/delete-record" method="POST" onsubmit="return confirm('Are you sure you want to delete this record?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(newRow);
+
+                    // Show success message
+                    alert('Record added successfully!');
+                } else {
+                    alert('Failed to add record. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        }
+    </script>
+
+    <!-- JavaScript for Enhanced Functionality -->
+    <script>
+        // Validate Form
+        function validateForm() {
+            const amount = document.getElementById('recordAmount').value;
+            const date = document.getElementById('recordDate').value;
+
+            if (amount <= 0) {
+                alert('Amount must be greater than 0.');
+                return false;
+            }
+
+            if (!date) {
+                alert('Please select a date.');
+                return false;
+            }
+
+            return true;
+        }
+
+        // Update Categories Based on Record Type
+        function updateCategories() {
+            const recordType = document.getElementById('recordType').value;
+            const categorySelect = document.getElementById('recordCategory');
+
+            if (recordType === 'Income') {
+                categorySelect.innerHTML = `
+                    <option value="Salary">Salary</option>
+                    <option value="Bonus">Bonus</option>
+                    <option value="Other">Other</option>
+                `;
+            } else if (recordType === 'Expense') {
+                categorySelect.innerHTML = `
+                    <option value="Spend">Spend</option>
+                    <option value="Invest">Invest</option>
+                    <option value="Saving">Saving</option>
+                `;
+            } else if (recordType === 'Budget') {
+                categorySelect.innerHTML = `
+                    <option value="Monthly">Monthly</option>
+                    <option value="Weekly">Weekly</option>
+                    <option value="Custom">Custom</option>
+                `;
+            }
+        }
+
+        // Handle Form Submission
+        document.getElementById('addRecordForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            if (validateForm()) {
+                // Simulate form submission (replace with actual AJAX call)
+                setTimeout(() => {
+                    alert('Record added successfully!');
+                    $('#addRecordModal').modal('hide'); // Close modal
+                    document.getElementById('addRecordForm').reset(); // Reset form
+                }, 1000);
+            }
+        });
     </script>
 </html>
