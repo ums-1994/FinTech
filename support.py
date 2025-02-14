@@ -17,7 +17,23 @@ def connect_db():
     cur.execute(
         '''CREATE TABLE IF NOT EXISTS user_expenses (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, pdate DATE NOT 
         NULL, expense VARCHAR(10) NOT NULL, amount INTEGER NOT NULL, pdescription VARCHAR(50), FOREIGN KEY (user_id) 
-        REFERENCES user_login(user_id))''')
+        REFERENCES user_login(user_id)) ''')
+       cur.execute('''CREATE TABLE IF NOT EXISTS user_profile 
+                (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                full_name TEXT,phone_number INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(user_id) REFERENCES user_login(user_id)) ''') 
+    cur.execute('''CREATE TABLE IF NOT EXISTS credit_worthiness (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL UNIQUE,
+        credit_score REAL DEFAULT 0.0,
+        credit_rating TEXT DEFAULT 'N/A',
+        income REAL DEFAULT 0.0,
+        expenses REAL DEFAULT 0.0,
+        debt_to_income_ratio REAL DEFAULT 0.0,
+        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(user_id) REFERENCES user_login(user_id)) ''')
     conn.commit()
     return conn, cur
 
