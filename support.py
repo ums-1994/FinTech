@@ -1,4 +1,5 @@
 import datetime
+from numpy import conj
 import pandas as pd
 # import mysql.connector  # pip install mysql-connector-python==8.0.31
 import sqlite3
@@ -18,7 +19,7 @@ def connect_db():
         '''CREATE TABLE IF NOT EXISTS user_expenses (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, pdate DATE NOT 
         NULL, expense VARCHAR(10) NOT NULL, amount INTEGER NOT NULL, pdescription VARCHAR(50), FOREIGN KEY (user_id) 
         REFERENCES user_login(user_id)) ''')
-       cur.execute('''CREATE TABLE IF NOT EXISTS user_profile 
+    cur.execute('''CREATE TABLE IF NOT EXISTS user_profile  
                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
                 full_name TEXT,phone_number INTEGER NOT NULL,
@@ -428,3 +429,65 @@ def meraSunburst(df=None, height=None, width=None):
     fig.update_layout(margin=dict(l=1, r=1, t=1, b=1), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
     fig.update(layout_showlegend=False)
     return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
+
+# Insert a new user profile
+conn, cur = connect_db()
+cur.execute('DROP TABLE IF EXISTS user_profile')
+cur.execute('''
+    CREATE TABLE IF NOT EXISTS user_profile (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        full_name TEXT,
+        profile_picture TEXT
+    )
+''')
+
+cur.execute('''
+    INSERT INTO user_profile (username, email, password_hash, full_name, profile_picture)
+    VALUES (?, ?, ?, ?, ?)
+''', ('john_doe', 'john@example.com', 'hashed_password', 'John Doe', 'profile.jpg'))
+
+# Commit changes and close the connection
+conn.commit()
+conn.close()
+
+def get_budget_progress():
+    # Connect to the database
+    conn = sqlite3.connect('budgetbuddy.db')
+    cur = conn.cursor()
+
+    # Fetch total budget
+    cur.execute('SELECT SUM(amount) FROM user_expenses WHERE expense = "Budget"')
+    total_budget = cur.fetchone()[0] or 0  # Default to 0 if no budget exists
+
+    # Fetch total expenses
+    cur.execute('SELECT SUM(amount) FROM user_expenses WHERE expense = "Spend"')
+    total_expenses = cur.fetchone()[0] or 0  # Default to 0 if no expenses exist
+
+    # Calculate remaining budget
+    remaining_budget = total_budget - total_expenses
+
+    # Calculate progress percentage
+    progress_percentage = (total_expenses / total_budget * 100) if total_budget > 0 else 0
+
+    # Close the connection
+    conn.close()
+
+    # Return budget progress data
+    return {
+        'total_budget': total_budget,
+        'total_expenses': total_expenses,
+        'remaining_budget': remaining_budget,
+        'progress_percentage': round(progress_percentage, 2)
+    }
+
+# Example usage
+if __name__ == '__main__':
+    progress = get_budget_progress()
+    print(f"Total Budget: R {progress['total_budget']}")
+    print(f"Total Expenses: R {progress['total_expenses']}")
+    print(f"Remaining Budget: R {progress['remaining_budget']}")
+    print(f"Progress: {progress['progress_percentage']}%")

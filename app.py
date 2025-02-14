@@ -4,6 +4,9 @@ from dotenv import load_dotenv
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
 import openai  # type: ignore # Example: Using OpenAI for NLP
 from flask_sqlalchemy import SQLAlchemy # type: ignore
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 load_dotenv()  # Load environment variables
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -174,5 +177,56 @@ def add_record():
         flash(f'{record_type} added successfully!', 'success')
         return redirect(url_for('home'))
 
+# Contact Us Route
+@app.route('/contact', methods=['POST'])
+def contact():
+    name = request.form.get('name')
+    email = request.form.get('email')
+    subject = request.form.get('subject')
+    message = request.form.get('message')
+
+    # Validate form data
+    if not name or not email or not subject or not message:
+        return jsonify({'success': False, 'error': 'All fields are required.'})
+
+    # Send email
+    try:
+        # Configure email settings
+        sender_email = 'your_email@example.com'
+        receiver_email = 'your_email@example.com'
+        password = 'your_email_password'
+
+        # Create email
+        msg = MIMEMultipart()
+        msg['From'] = sender_email
+        msg['To'] = receiver_email
+        msg['Subject'] = f"New Contact Form Submission: {subject}"
+        body = f"Name: {name}\nEmail: {email}\nMessage: {message}"
+        msg.attach(MIMEText(body, 'plain'))
+
+        # Send email
+        with smtplib.SMTP('smtp.example.com', 587) as server:
+            server.starttls()
+            server.login(sender_email, password)
+            server.sendmail(sender_email, receiver_email, msg.as_string())
+
+        # Send auto-reply to user
+        auto_reply = MIMEMultipart()
+        auto_reply['From'] = sender_email
+        auto_reply['To'] = email
+        auto_reply['Subject'] = "Thank you for contacting us!"
+        auto_reply_body = f"Hi {name},\n\nThank you for contacting us. We will get back to you shortly.\n\nBest regards,\nThe BudgetBuddy Team"
+        auto_reply.attach(MIMEText(auto_reply_body, 'plain'))
+
+        with smtplib.SMTP('smtp.example.com', 587) as server:
+            server.starttls()
+            server.login(sender_email, password)
+            server.sendmail(sender_email, email, auto_reply.as_string())
+
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+# Run the App
 if __name__ == '__main__':
     app.run(debug=True) 
